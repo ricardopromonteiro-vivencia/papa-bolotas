@@ -1,0 +1,512 @@
+﻿
+> papa-bolotas-webapp@0.1.0 test
+> vitest --run
+
+
+ RUN  v4.1.12 C:/Users/ricardo_monteiro/papa-bolotas app/papa-bolotas/webapp
+
+node.exe : Error: useAuthContext must be used within an AuthProvider
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: useAuthC...an AuthProvider:String 
+   ) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at Module.useAuthContext (C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.tsx:375:11)
+    at C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.test.tsx:61:26
+    at TestComponent (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\@testing-library\react\dist\pure.js:339:27)
+    at renderWithHooks (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation 
+(C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\ricardo_monteiro\papa-bolotas app\papa-bolo
+tas\webapp\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\ricardo_monteiro\papa-bolotas app\papa-bolotas\w
+ebapp\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: useAuthContext must be used within an AuthProvider
+    at Module.useAuthContext (C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.tsx:375:11)
+    at C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.test.tsx:61:26
+    at TestComponent (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\@testing-library\react\dist\pure.js:339:27)
+    at renderWithHooks (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation 
+(C:\Users\ricardo_monteiro\papa-bolotas 
+app\papa-bolotas\webapp\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\ricardo_monteiro\papa-bolotas app\papa-bolo
+tas\webapp\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\ricardo_monteiro\papa-bolotas app\papa-bolotas\w
+ebapp\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > logout > should clear state even if logout API call fails
+No valid session found
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > logout > should clear state even if logout API call fails
+Auto-refresh scheduled in: 660 minutes
+Login successful, auth state updated
+
+stderr | src/contexts/AuthContext.test.tsx > AuthContext > logout > should clear 
+state even if logout API call fails
+Logout error: Error: Logout failed
+    at C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.test.tsx:229:55
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolota
+s/webapp/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolot
+as/webapp/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > logout > should clear state even if logout API call fails
+Auth state cleared
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should clear state if refresh fails
+No valid session found
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should clear state if refresh fails
+Auto-refresh scheduled in: 660 minutes
+Login successful, auth state updated
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should clear state if refresh fails
+stderr | src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should 
+clear state if refresh fails
+Failed to refresh session: Error: Refresh failed
+    at C:/Users/ricardo_monteiro/papa-bolotas 
+app/papa-bolotas/webapp/src/contexts/AuthContext.test.tsx:303:63
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolota
+s/webapp/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolot
+as/webapp/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///C:/Users/ricardo_monteiro/papa-bolotas%20app/papa-bolotas/webapp/node_m
+odules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+Refreshing session...
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should clear state if refresh fails
+Auth state cleared
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > auto-refresh > should schedule auto-refresh after login
+No valid session found
+
+stdout | src/contexts/AuthContext.test.tsx > AuthContext > auto-refresh > should schedule auto-refresh after login
+Auto-refresh scheduled in: 660 minutes
+Login successful, auth state updated
+
+ ÔØ» src/contexts/AuthContext.test.tsx (19 tests | 3 failed) 1021ms
+       ├ù should clear state even if logout API call fails 57ms
+       ├ù should clear state if refresh fails 61ms
+       ├ù should schedule auto-refresh after login 55ms
+ ÔØ» src/components/ProtectedRoute.test.tsx (8 tests | 8 failed) 7079ms
+     ├ù should display loading state while validating authentication 40ms
+     ├ù should render protected content when user is authenticated 1007ms
+     ├ù should redirect to login when user is not authenticated 1006ms
+     ├ù should persist intended destination when redirecting to login 1004ms
+     ├ù should redirect to custom login path when specified 1005ms
+     ├ù should handle authentication state changes in real-time 1004ms
+     ├ù should handle validation errors gracefully 1004ms
+     ├ù should cleanup subscription on unmount 1005ms
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 11 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should display 
+loading state while validating authentication
+Error: Invalid Chai property: toBeInTheDocument
+ ÔØ» src/components/ProtectedRoute.test.tsx:75:59
+     73|
+     74|     // Should show loading state
+     75|     expect(screen.getByText('Verificando autentica├º├úo...')).toBeInTheDÔÇª
+       |                                                           ^
+     76|
+     77|     // Resolve the validation
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should render 
+protected content when user is authenticated
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"protected-content"[39m
+      [36m>[39m
+        [0mProtected Content[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:96:53
+     94|     // Wait for authentication check to complete
+     95|     await waitFor(() => {
+     96|       expect(screen.getByTestId('protected-content')).toBeInTheDocumenÔÇª
+       |                                                     ^
+     97|     });
+     98|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should redirect to 
+login when user is not authenticated
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"login-page"[39m
+        [36m>[39m
+          [0mLogin Page[0m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"pathname"[39m
+          [36m>[39m
+            [0m/login[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"state"[39m
+          [36m>[39m
+            [0m{"from":"/"}[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:125:46
+    123|     // Wait for redirect to complete
+    124|     await waitFor(() => {
+    125|       expect(screen.getByTestId('login-page')).toBeInTheDocument();
+       |                                              ^
+    126|     });
+    127|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should persist 
+intended destination when redirecting to login
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"login-page"[39m
+        [36m>[39m
+          [0mLogin Page[0m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"pathname"[39m
+          [36m>[39m
+            [0m/login[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"state"[39m
+          [36m>[39m
+            [0m{"from":"/dashboard"}[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:155:46
+    153|     // Wait for redirect to complete
+    154|     await waitFor(() => {
+    155|       expect(screen.getByTestId('login-page')).toBeInTheDocument();
+       |                                              ^
+    156|     });
+    157|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should redirect to 
+custom login path when specified
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"custom-login"[39m
+      [36m>[39m
+        [0mCustom Login[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:191:48
+    189|     // Wait for redirect to complete
+    190|     await waitFor(() => {
+    191|       expect(screen.getByTestId('custom-login')).toBeInTheDocument();
+       |                                                ^
+    192|     });
+    193|   });
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should handle 
+authentication state changes in real-time
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"login-page"[39m
+        [36m>[39m
+          [0mLogin Page[0m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"pathname"[39m
+          [36m>[39m
+            [0m/login[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"state"[39m
+          [36m>[39m
+            [0m{"from":"/"}[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:223:46
+    221|     // Should initially redirect to login
+    222|     await waitFor(() => {
+    223|       expect(screen.getByTestId('login-page')).toBeInTheDocument();
+       |                                              ^
+    224|     });
+    225|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should handle 
+validation errors gracefully
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"login-page"[39m
+        [36m>[39m
+          [0mLogin Page[0m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"pathname"[39m
+          [36m>[39m
+            [0m/login[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"state"[39m
+          [36m>[39m
+            [0m{"from":"/"}[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:264:46
+    262|     // Should redirect to login after error
+    263|     await waitFor(() => {
+    264|       expect(screen.getByTestId('login-page')).toBeInTheDocument();
+       |                                              ^
+    265|     });
+    266|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/11]ÔÄ»
+
+ FAIL  src/components/ProtectedRoute.test.tsx > ProtectedRoute > should cleanup 
+subscription on unmount
+
+ Test Files  2 failed | 7 passed (9)
+      Tests  11 failed | 218 passed | 1 skipped (230)
+   Start at  11:57:39
+   Duration  9.81s (transform 1.84s, setup 1.10s, import 3.03s, tests 8.49s, environment 16.04s)
+
+Error: Invalid Chai property: toBeInTheDocument
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"protected-content"[39m
+      [36m>[39m
+        [0mProtected Content[0m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ÔØ» src/components/ProtectedRoute.test.tsx:292:53
+    290|     // Wait for component to mount and authenticate
+    291|     await waitFor(() => {
+    292|       expect(screen.getByTestId('protected-content')).toBeInTheDocumenÔÇª
+       |                                                     ^
+    293|     });
+    294|
+ ÔØ» runWithExpensiveErrorDiagnosticsDisabled 
+node_modules/@testing-library/dom/dist/config.js:47:12
+ ÔØ» checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ÔØ» Timeout.checkRealTimersCallback 
+node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/11]ÔÄ»
+
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext > logout > should clear state 
+even if logout API call fails
+AssertionError: expected { id: 'user-123', ÔÇª(4) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "createdAt": 2024-01-01T00:00:00.000Z,
+  "id": "user-123",
+  "role": "admin",
+  "updatedAt": 2024-01-01T00:00:00.000Z,
+  "username": "testuser",
+}
+
+ ÔØ» src/contexts/AuthContext.test.tsx:258:35
+    256|
+    257|       // State should still be cleared
+    258|       expect(result.current.user).toBeNull();
+       |                                   ^
+    259|       expect(result.current.session).toBeNull();
+    260|       expect(result.current.isAuthenticated).toBe(false);
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/11]ÔÄ»
+
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext > refreshSession > should 
+clear state if refresh fails
+AssertionError: expected { id: 'user-123', ÔÇª(4) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "createdAt": 2024-01-01T00:00:00.000Z,
+  "id": "user-123",
+  "role": "admin",
+  "updatedAt": 2024-01-01T00:00:00.000Z,
+  "username": "testuser",
+}
+
+ ÔØ» src/contexts/AuthContext.test.tsx:335:35
+    333|       expect(thrownError?.message).toBe('Refresh failed');
+    334|
+    335|       expect(result.current.user).toBeNull();
+       |                                   ^
+    336|       expect(result.current.isAuthenticated).toBe(false);
+    337|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/11]ÔÄ»
+
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext > auto-refresh > should 
+schedule auto-refresh after login
+AssertionError: expected "vi.fn()" to be called at least once
+ ÔØ» src/contexts/AuthContext.test.tsx:406:42
+    404|       });
+    405|
+    406|       expect(authService.refreshSession).toHaveBeenCalled();
+       |                                          ^
+    407|
+    408|       vi.useRealTimers();
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/11]ÔÄ»
+

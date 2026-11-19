@@ -1,0 +1,38 @@
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    // Load .env.test for test runs
+    env: {
+      VITE_SUPABASE_URL: 'https://test-project.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key-1234567890-abcdefghijklmnopqrstuvwxyz',
+      VITE_SECURITY_CODE: '1234',
+      VITE_APP_NAME: 'Papa Bolotas Test',
+      VITE_APP_VERSION: '0.1.0-test',
+      VITE_DEV_MODE: 'true',
+      VITE_USE_MOCK_DATA: 'false',
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.test.{ts,tsx}',
+        '**/*.config.{ts,js}',
+        '**/vite-env.d.ts',
+      ],
+    },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});

@@ -1,0 +1,5 @@
+# robots.txt for Papa Bolotas POS
+# This is an internal business application
+
+User-agent: *
+Disallow: /

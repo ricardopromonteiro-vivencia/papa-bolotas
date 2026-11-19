@@ -1,0 +1,39 @@
+﻿# Papa Bolotas - Ficheiros Confidenciais
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Netlify
+.netlify/
+
+# Temporary files
+*.tmp
+temp/

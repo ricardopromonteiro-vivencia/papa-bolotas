@@ -1,0 +1,159 @@
+/**
+ * AppLayout - Main navigation shell
+ * 
+ * Persistent sidebar on desktop, bottom nav on mobile.
+ */
+
+import { useState } from 'react';
+import { NavLink, useNavigate, Outlet } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { SyncStatusIndicator } from '@/components/sync';
+import {
+  ShoppingCart,
+  Package,
+  BarChart2,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const NAV_ITEMS = [
+  { to: '/pos',      icon: ShoppingCart, label: 'POS'       },
+  { to: '/stock',    icon: Package,      label: 'Stock'     },
+  { to: '/reports',  icon: BarChart2,    label: 'Relatórios'},
+  { to: '/settings', icon: Settings,     label: 'Definições'},
+];
+
+export function AppLayout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  const NavItems = ({ onClick }: { onClick?: () => void }) => (
+    <>
+      {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+        <NavLink
+          key={to}
+          to={to}
+          onClick={onClick}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-orange-100 text-orange-700'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            )
+          }
+        >
+          <Icon className="h-5 w-5 shrink-0" />
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </>
+  );
+
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* ── Desktop Sidebar ── */}
+      <aside className="hidden md:flex flex-col w-56 bg-white border-r border-gray-200 shrink-0">
+        {/* Logo */}
+        <div className="p-5 border-b border-gray-100">
+          <h1 className="text-xl font-bold text-orange-600">🍞 Papa Bolotas</h1>
+          <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          <NavItems />
+        </nav>
+
+        {/* Footer */}
+        <div className="p-3 border-t border-gray-100 space-y-2">
+          <SyncStatusIndicator size="sm" />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Terminar Sessão
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Mobile Header + Drawer ── */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Mobile top bar */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+          <h1 className="text-lg font-bold text-orange-600">🍞 Papa Bolotas</h1>
+          <button onClick={() => setSidebarOpen(true)} className="p-2">
+            <Menu className="h-5 w-5" />
+          </button>
+        </header>
+
+        {/* Mobile drawer overlay */}
+        {sidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 flex">
+            <div
+              className="fixed inset-0 bg-black/40"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <div className="relative z-50 w-64 bg-white flex flex-col h-full shadow-xl">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h1 className="font-bold text-orange-600">🍞 Papa Bolotas</h1>
+                <button onClick={() => setSidebarOpen(false)}>
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <nav className="flex-1 p-3 space-y-1">
+                <NavItems onClick={() => setSidebarOpen(false)} />
+              </nav>
+              <div className="p-3 border-t space-y-2">
+                <SyncStatusIndicator size="sm" />
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Terminar Sessão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+
+        {/* Mobile bottom nav */}
+        <nav className="md:hidden flex border-t border-gray-200 bg-white">
+          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  'flex-1 flex flex-col items-center py-2 text-xs font-medium transition-colors',
+                  isActive ? 'text-orange-600' : 'text-gray-500'
+                )
+              }
+            >
+              <Icon className="h-5 w-5 mb-0.5" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+export default AppLayout;

@@ -1,7 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ConnectionStatus } from '@/components'
 import { ProtectedRoute } from '@/components/auth'
+import { AppLayout } from '@/components/layout'
 import Login from '@/pages/Login'
+import POS from '@/pages/POS'
+import Stock from '@/pages/Stock'
+import Reports from '@/pages/Reports'
+import Settings from '@/pages/Settings'
 
 function App() {
   return (
@@ -13,26 +18,21 @@ function App() {
           path="/" 
           element={
             <ProtectedRoute>
-              <Home />
+              <AppLayout />
             </ProtectedRoute>
-          } 
-        />
+          }
+        >
+          {/* Default route redirects to POS */}
+          <Route index element={<Navigate to="/pos" replace />} />
+          <Route path="pos" element={<POS />} />
+          <Route path="stock" element={<Stock />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+        {/* Catch all - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
-  )
-}
-
-function Home() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Welcome to Papa Bolotas POS System</h2>
-        <p className="mb-2">The application is being set up...</p>
-        <p className="text-sm text-gray-600">
-          PWA features enabled - App works offline
-        </p>
-      </div>
-    </div>
   )
 }
 

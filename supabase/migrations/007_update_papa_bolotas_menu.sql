@@ -3,14 +3,8 @@
 -- ================================================
 -- This migration clears the existing menu and populates it with the real Papa Bolotas items
 
--- First, disable triggers temporarily to avoid conflicts
-ALTER TABLE menu_items DISABLE TRIGGER ALL;
-
--- Clear existing menu items
-TRUNCATE TABLE menu_items RESTART IDENTITY CASCADE;
-
--- Re-enable triggers
-ALTER TABLE menu_items ENABLE TRIGGER ALL;
+-- Clear existing menu items (CASCADE will handle dependencies)
+DELETE FROM menu_items;
 
 -- ================================================
 -- CATEGORIA: Sandes
@@ -22,7 +16,7 @@ INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Sandes Presunto, Queijo e Ovo', 'Sandes', 7.00, 987, true);
 
 -- ================================================
--- CATEGORIA: Tábuas
+-- CATEGORIA: Tábuas (incluindo petiscos)
 -- ================================================
 INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Chouriço Assado', 'Tábuas', 5.00, 983, true),
@@ -32,10 +26,11 @@ INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Tábua Presunto e Enchidos', 'Tábuas', 9.00, 995, true),
 ('Tábua Enchidos e Queijo', 'Tábuas', 9.00, 997, true),
 ('Tábua Presunto', 'Tábuas', 12.00, 1000, true),
-('Tábua Completa', 'Tábuas', 12.00, 979, true);
+('Tábua Completa', 'Tábuas', 12.00, 979, true),
+('3 Amigos', 'Tábuas', 5.00, 100, true);
 
 -- ================================================
--- CATEGORIA: Batatas
+-- CATEGORIA: Batatas (incluindo croquetas)
 -- ================================================
 INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Batatas Simples', 'Batatas', 3.00, 997, true),
@@ -43,7 +38,9 @@ INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Batatas c/ Cheddar', 'Batatas', 4.50, 995, true),
 ('Batatas Presunto e Cheddar', 'Batatas', 7.00, 1000, true),
 ('Ovos Rotos', 'Batatas', 8.00, 901, true),
-('Ovos Rotos c/ Cheddar', 'Batatas', 9.00, 969, true);
+('Ovos Rotos c/ Cheddar', 'Batatas', 9.00, 969, true),
+('Croquetas 6 unid.', 'Batatas', 5.00, 95, true),
+('Croquetas 1 unid.', 'Batatas', 1.00, 99, true);
 
 -- ================================================
 -- CATEGORIA: Doces
@@ -97,14 +94,6 @@ INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
 ('Champarrião 2 L', 'Bebidas', 13.50, 1000, true);
 
 -- ================================================
--- CATEGORIA: Petiscos (Artigos adicionais do stock fornecido)
--- ================================================
-INSERT INTO menu_items (name, category, price, stock_level, is_active) VALUES
-('3 Amigos', 'Petiscos', 5.00, 100, true),
-('Croquetas 6 unid.', 'Petiscos', 5.00, 95, true),
-('Croquetas 1 unid.', 'Petiscos', 1.00, 99, true);
-
--- ================================================
 -- VERIFICATION
 -- ================================================
 -- Count items by category
@@ -116,7 +105,6 @@ DECLARE
   batatas_count INTEGER;
   doces_count INTEGER;
   bebidas_count INTEGER;
-  petiscos_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO total_count FROM menu_items;
   SELECT COUNT(*) INTO sandes_count FROM menu_items WHERE category = 'Sandes';
@@ -124,14 +112,12 @@ BEGIN
   SELECT COUNT(*) INTO batatas_count FROM menu_items WHERE category = 'Batatas';
   SELECT COUNT(*) INTO doces_count FROM menu_items WHERE category = 'Doces';
   SELECT COUNT(*) INTO bebidas_count FROM menu_items WHERE category = 'Bebidas';
-  SELECT COUNT(*) INTO petiscos_count FROM menu_items WHERE category = 'Petiscos';
 
   RAISE NOTICE 'Menu Papa Bolotas atualizado com sucesso!';
   RAISE NOTICE 'Total de artigos: %', total_count;
   RAISE NOTICE '  - Sandes: %', sandes_count;
-  RAISE NOTICE '  - Tábuas: %', tabuas_count;
-  RAISE NOTICE '  - Batatas: %', batatas_count;
+  RAISE NOTICE '  - Tábuas: % (inclui 3 Amigos)', tabuas_count;
+  RAISE NOTICE '  - Batatas: % (inclui croquetas)', batatas_count;
   RAISE NOTICE '  - Doces: %', doces_count;
   RAISE NOTICE '  - Bebidas: %', bebidas_count;
-  RAISE NOTICE '  - Petiscos: %', petiscos_count;
 END $$;

@@ -1,0 +1,15 @@
+{
+  "name": "papa-bolotas-db-scripts",
+  "version": "1.0.0",
+  "description": "Database utility scripts for Papa Bolotas Supabase setup",
+  "private": true,
+  "scripts": {
+    "generate-hash": "node generate-admin-hash.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

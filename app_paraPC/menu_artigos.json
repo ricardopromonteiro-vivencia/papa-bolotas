@@ -1,0 +1,51 @@
+{
+  "Sandes": {
+    "Sandes de Presunto": 5.0,
+    "Sandes Presunto e Queijo": 6.0,
+    "Sandes Presunto e Ovo": 6.0,
+    "Sandes Presunto, Queijo e Ovo": 7.0
+  },
+  "Tábuas": {
+    "Chouriço Assado": 5.0,
+    "Tábua Alheira": 7.0,
+    "Tábua Enchidos": 8.0,
+    "Tábua Presunto e Queijo": 9.0,
+    "Tábua Presunto e Enchidos": 9.0,
+    "Tábua Enchidos e Queijo": 9.0,
+    "Tábua Presunto": 12.0,
+    "Tábua Completa": 12.0
+  },
+  "Batatas": {
+    "Batatas Simples": 3.0,
+    "Nachos c/ Cheddar": 4.0,
+    "Batatas c/ Cheddar": 4.5,
+    "Batatas Presunto e Cheddar": 7.0,
+    "Ovos Rotos": 8.0,
+    "Ovos Rotos c/ Cheddar": 9.0
+  },
+  "Doces": {
+    "Fatia de Bolo": 1.0
+  },
+  "Bebidas": {
+    "Água (Lisa)": 1.0,
+    "Água com Gás": 1.5,
+    "Cerveja Mini": 1.5,
+    "Coca Cola": 2.0,
+    "Coca Cola Zero": 2.0,
+    "Ice Tea Limão": 2.0,
+    "Ice Tea Pêssego": 2.0,
+    "Sumol Ananás": 2.0,
+    "Sumol Laranja": 2.0,
+    "Pepsi Zero": 2.0,
+    "Sprite": 2.0,
+    "Guaraná": 2.0,
+    "HITZ Maracujá": 7.0,
+    "HITZ Frutos Vermelhos": 7.0,
+    "Castiço": 7.0,
+    "Muralhas": 7.0,
+    "Pegões": 7.0,
+    "Café": 1.0,
+    "Champarrião 1 L": 8.0,
+    "Champarrião 2 L": 13.5
+  }
+}

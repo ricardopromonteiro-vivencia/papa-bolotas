@@ -12,6 +12,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { authService } from '@/services/auth.service';
+import { supabase } from '@/lib/supabase';
 import { User, AuthSession } from '@/types';
 
 /**
@@ -262,28 +263,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!isMounted) return;
 
         if (isValid) {
-          // Get current user (may return null if async)
-          const currentUser = authService.getCurrentUser();
+          // Get current user asynchronously
+          const currentUser = await authService.getCurrentUserAsync();
           
           if (currentUser) {
             setUser(currentUser);
             
-            // Create a session object (we don't have full session details from getCurrentUser)
-            // This will be updated on next refresh
-            const mockSession: AuthSession = {
-              user: currentUser,
-              accessToken: '', // Will be refreshed
-              refreshToken: '',
-              expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours from now
-            };
+            // Get the actual session to have proper expiration time
+            const { data: { session: supabaseSession } } = await supabase.auth.getSession();
             
-            setSession(mockSession);
-            
-            // Setup auto-refresh
-            setupAutoRefresh(mockSession);
+            if (supabaseSession) {
+              const authSession: AuthSession = {
+                user: currentUser,
+                accessToken: supabaseSession.access_token,
+                refreshToken: supabaseSession.refresh_token || '',
+                expiresAt: new Date((supabaseSession.expires_at || 0) * 1000),
+              };
+              
+              setSession(authSession);
+              setupAutoRefresh(authSession);
 
-            if (import.meta.env.DEV) {
-              console.log('Restored authentication state');
+              if (import.meta.env.DEV) {
+                console.log('Restored authentication state');
+              }
             }
           }
         } else {

@@ -177,7 +177,9 @@ export class AuthService {
   }
 
   /**
-   * Get the currently authenticated user
+   * Get the currently authenticated user (synchronous - deprecated)
+   * 
+   * @deprecated Use getCurrentUserAsync() instead as Supabase getSession() is now async
    * 
    * Requirements:
    * - 1.6: Maintain authentication state
@@ -185,32 +187,37 @@ export class AuthService {
    * @returns Current user or null if not authenticated
    */
   getCurrentUser(): User | null {
-    try {
-      // Get current session synchronously from local storage
-      const session = supabase.auth.getSession();
+    console.warn('getCurrentUser() is deprecated. Use getCurrentUserAsync() instead.');
+    return null;
+  }
 
-      // Note: getSession() returns a promise in newer versions
-      // We'll handle both sync and async cases
-      if (session instanceof Promise) {
-        // If it's async, we can't return synchronously
-        // The caller should use validateSession() instead
-        console.warn('getCurrentUser: session is async, returning null');
+  /**
+   * Get the currently authenticated user (asynchronous)
+   * 
+   * Requirements:
+   * - 1.6: Maintain authentication state
+   * 
+   * @returns Promise resolving to current user or null if not authenticated
+   */
+  async getCurrentUserAsync(): Promise<User | null> {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error('Error getting current user:', error);
         return null;
       }
 
-      // Session is available synchronously (older API or cached)
-      const supabaseSession = (session as any)?.data?.session;
-      
-      if (!supabaseSession) {
+      if (!session) {
         return null;
       }
 
       return {
-        id: supabaseSession.user.id,
-        username: supabaseSession.user.email || supabaseSession.user.user_metadata.username || 'unknown',
+        id: session.user.id,
+        username: session.user.email || session.user.user_metadata.username || 'unknown',
         role: UserRole.ADMIN,
-        createdAt: new Date(supabaseSession.user.created_at),
-        updatedAt: new Date(supabaseSession.user.updated_at || supabaseSession.user.created_at),
+        createdAt: new Date(session.user.created_at),
+        updatedAt: new Date(session.user.updated_at || session.user.created_at),
       };
 
     } catch (error) {

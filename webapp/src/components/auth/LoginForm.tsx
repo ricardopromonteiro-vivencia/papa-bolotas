@@ -31,10 +31,10 @@ interface LoginFormProps {
  */
 function validateUsername(username: string): string | null {
   if (!username || username.trim().length === 0) {
-    return 'Username is required';
+    return 'Nome de utilizador é obrigatório';
   }
   if (username.length < 3) {
-    return 'Username must be at least 3 characters';
+    return 'Nome de utilizador deve ter pelo menos 3 caracteres';
   }
   return null;
 }
@@ -45,16 +45,16 @@ function validateUsername(username: string): string | null {
  */
 function validatePassword(password: string): string | null {
   if (!password || password.length === 0) {
-    return 'Password is required';
+    return 'Palavra-passe é obrigatória';
   }
   if (password.length < 8) {
-    return 'Password must be at least 8 characters';
+    return 'Palavra-passe deve ter pelo menos 8 caracteres';
   }
   // Check for alphanumeric (at least one letter and one number)
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   if (!hasLetter || !hasNumber) {
-    return 'Password must contain both letters and numbers';
+    return 'Palavra-passe deve conter letras e números';
   }
   return null;
 }
@@ -130,7 +130,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
       // Handle authentication error
       const errorMessage = err instanceof AuthenticationError
         ? err.message
-        : 'An unexpected error occurred. Please try again.';
+        : 'Ocorreu um erro inesperado. Por favor, tente novamente.';
       
       setError(errorMessage);
       
@@ -168,7 +168,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
     <div className="w-full max-w-md mx-auto p-6">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-gray-900">Papa Bolotas</h1>
-        <p className="mt-2 text-sm text-gray-600">POS System Login</p>
+        <p className="mt-2 text-sm text-gray-600">Sistema de Gestão de Vendas</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -186,7 +186,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         {/* Username field */}
         <div className="space-y-2">
           <Label htmlFor="username">
-            Username
+            Nome de Utilizador
           </Label>
           <Input
             id="username"
@@ -220,7 +220,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         {/* Password field */}
         <div className="space-y-2">
           <Label htmlFor="password">
-            Password
+            Palavra-passe
           </Label>
           <Input
             id="password"
@@ -250,7 +250,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             </p>
           )}
           <p className="text-xs text-gray-500">
-            Minimum 8 characters with letters and numbers
+            Mínimo de 8 caracteres com letras e números
           </p>
         </div>
 
@@ -263,10 +263,10 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
           {isLoading ? (
             <>
               <span className="inline-block animate-spin mr-2">⏳</span>
-              Signing in...
+              A entrar...
             </>
           ) : (
-            'Sign In'
+            'Entrar'
           )}
         </Button>
       </form>

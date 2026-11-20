@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { to: '/pos',      icon: ShoppingCart, label: 'POS'       },
+  { to: '/pos',      icon: ShoppingCart, label: 'Vendas'    },
   { to: '/stock',    icon: Package,      label: 'Stock'     },
   { to: '/reports',  icon: BarChart2,    label: 'Relatórios'},
   { to: '/settings', icon: Settings,     label: 'Definições'},
@@ -30,59 +30,78 @@ export function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  const NavItems = ({ onClick }: { onClick?: () => void }) => (
-    <>
-      {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          onClick={onClick}
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-              isActive
-                ? 'bg-orange-100 text-orange-700'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-            )
-          }
-        >
-          <Icon className="h-5 w-5 shrink-0" />
-          <span>{label}</span>
-        </NavLink>
-      ))}
-    </>
-  );
-
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden md:flex flex-col w-56 bg-white border-r border-gray-200 shrink-0">
+      <aside className={cn(
+        "hidden md:flex flex-col bg-white border-r border-gray-200 shrink-0 transition-all duration-300",
+        sidebarCollapsed ? "w-16" : "w-56"
+      )}>
         {/* Logo */}
-        <div className="p-5 border-b border-gray-100">
-          <h1 className="text-xl font-bold text-orange-600">🍞 Papa Bolotas</h1>
-          <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          {!sidebarCollapsed && (
+            <>
+              <div>
+                <h1 className="text-xl font-bold text-orange-600">🍞 Papa Bolotas</h1>
+                <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
+              </div>
+            </>
+          )}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={cn(
+              "p-2 rounded-lg hover:bg-gray-100 transition-colors",
+              sidebarCollapsed && "mx-auto"
+            )}
+            title={sidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
+          >
+            <Menu className="h-5 w-5 text-gray-600" />
+          </button>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          <NavItems />
+          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                  sidebarCollapsed && 'justify-center'
+                )
+              }
+              title={sidebarCollapsed ? label : undefined}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              {!sidebarCollapsed && <span>{label}</span>}
+            </NavLink>
+          ))}
         </nav>
 
         {/* Footer */}
         <div className="p-3 border-t border-gray-100 space-y-2">
-          <SyncStatusIndicator size="sm" />
+          {!sidebarCollapsed && <SyncStatusIndicator size="sm" />}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className={cn(
+              "flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors",
+              sidebarCollapsed && "justify-center"
+            )}
+            title={sidebarCollapsed ? "Terminar Sessão" : undefined}
           >
             <LogOut className="h-4 w-4" />
-            Terminar Sessão
+            {!sidebarCollapsed && "Terminar Sessão"}
           </button>
         </div>
       </aside>
@@ -112,7 +131,24 @@ export function AppLayout() {
                 </button>
               </div>
               <nav className="flex-1 p-3 space-y-1">
-                <NavItems onClick={() => setSidebarOpen(false)} />
+                {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={() => setSidebarOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                        isActive
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      )
+                    }
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
               </nav>
               <div className="p-3 border-t space-y-2">
                 <SyncStatusIndicator size="sm" />

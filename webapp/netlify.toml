@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # VITE_SECURITY_CODE has only 4 characters, so the scanner matches it by chance
+  # inside binary files (PNG) and package-lock hashes. Being a VITE_ variable, it
+  # is already bundled into the client JS, so it is not a server-side secret.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SECURITY_CODE"
+
 [[redirects]]
   from   = "/*"
   to     = "/index.html"

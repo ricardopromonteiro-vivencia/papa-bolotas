@@ -351,20 +351,21 @@ export function StockDashboard({
             <Card
               key={item.itemId}
               className={`transition-colors ${
+                // Esgotado: cartão sempre escuro com texto claro (igual em modo claro e escuro do aparelho)
                 item.currentLevel === 0
-                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
+                  ? 'border-orange-500 bg-orange-950 text-white'
                   : ''
               }`}
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-base font-semibold">
+                  <CardTitle className={`text-base font-semibold ${item.currentLevel === 0 ? 'text-white' : ''}`}>
                     {item.itemName}
                   </CardTitle>
                   {item.currentLevel === 0 && (
                     <AlertTriangle
-                      className="h-5 w-5 text-orange-600 flex-shrink-0"
-                      aria-label="Stock baixo"
+                      className="h-5 w-5 text-orange-400 flex-shrink-0"
+                      aria-label="Stock esgotado"
                     />
                   )}
                 </div>
@@ -373,11 +374,13 @@ export function StockDashboard({
                 <div className="space-y-2">
                   {/* Stock Level */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Stock Atual:</span>
+                    <span className={`text-sm ${item.currentLevel === 0 ? 'text-orange-100' : 'text-muted-foreground'}`}>
+                      Stock Atual:
+                    </span>
                     <span
                       className={`text-2xl font-bold ${
                         item.currentLevel === 0
-                          ? 'text-orange-600'
+                          ? 'text-orange-400'
                           : item.currentLevel < 10
                           ? 'text-yellow-600'
                           : 'text-green-600'
@@ -388,7 +391,7 @@ export function StockDashboard({
                   </div>
 
                   {/* Last Adjusted */}
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className={`flex items-center justify-between text-xs ${item.currentLevel === 0 ? 'text-orange-100' : 'text-muted-foreground'}`}>
                     <span>Última atualização:</span>
                     <span>
                       {new Date(item.lastAdjustedAt).toLocaleDateString('pt-PT', {
@@ -403,10 +406,10 @@ export function StockDashboard({
 
                   {/* Low Stock Warning */}
                   {item.currentLevel === 0 && (
-                    <Alert variant="default" className="mt-2 border-orange-500">
+                    <Alert variant="default" className="mt-2 border-orange-500 bg-white text-gray-900">
                       <AlertTriangle className="h-4 w-4 text-orange-600" />
-                      <AlertDescription className="text-xs">
-                        Stock esgotado. Reabasteça este item.
+                      <AlertDescription className="text-xs text-gray-900">
+                        Stock esgotado. Reabasteça este artigo.
                       </AlertDescription>
                     </Alert>
                   )}

@@ -1,0 +1,5 @@
+Limitações:
+
+No tablet, as impressoras têm de suportar Bluetooth LE. A maioria das impressoras de talões Bluetooth suporta, mas as que só têm Bluetooth clássico não funcionam no tablet.
+Depois de reiniciar o browser, as impressoras USB e de porta série voltam a ligar sozinhas. Nas Bluetooth, alguns browsers obrigam a escolher a impressora outra vez.
+Ainda não testei com impressoras reais. Testei por código o conteúdo dos talões, os cortes entre eles, o tamanho grande do número e os acentos.

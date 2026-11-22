@@ -4,14 +4,18 @@
  * Displays a single menu item card with name, price, and stock level.
  * Clickable to select the item.
  * 
+ * - Artigos sem controlo de stock não mostram o número de stock.
+ * - Artigos bloqueados (esgotados) aparecem marcados; a página de Vendas não os deixa
+ *   adicionar ao pedido (nas Definições continuam a abrir para editar/desbloquear).
+ * 
  * Requirements:
  * - 2.1, 2.2, 2.3: Responsive design
  * - 4.8: Display item name, price, and stock level
  */
 
-import { MenuItem as MenuItemType } from '@/types';
+import { MenuItem as MenuItemType, tracksStock, isItemAvailable, isSellable } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Ban } from 'lucide-react';
 
 interface MenuItemProps {
   /**
@@ -36,7 +40,16 @@ interface MenuItemProps {
  * Displays individual menu item as a clickable card
  */
 export function MenuItem({ item, onSelect, className = '' }: MenuItemProps) {
-  const isOutOfStock = item.stockLevel === 0;
+  const hasStock = tracksStock(item);
+  // Esgotado: bloqueado à mão ou com controlo de stock e stock a 0
+  const blocked = !isSellable(item);
+  const blockedByHand = !isItemAvailable(item);
+
+  const label = [
+    item.name,
+    `${item.price.toFixed(2)} euros`,
+    blocked ? 'esgotado' : hasStock ? `stock: ${item.stockLevel}` : 'sem controlo de stock',
+  ].join(', ');
 
   return (
     <Card
@@ -46,13 +59,14 @@ export function MenuItem({ item, onSelect, className = '' }: MenuItemProps) {
         hover:shadow-lg 
         hover:scale-[1.02]
         active:scale-[0.98]
-        ${isOutOfStock ? 'opacity-60' : ''}
+        ${blocked ? 'opacity-50 border-red-300 bg-gray-50' : ''}
         ${className}
       `}
       onClick={() => onSelect(item)}
       role="button"
       tabIndex={0}
-      aria-label={`${item.name}, ${item.price.toFixed(2)} euros, stock: ${item.stockLevel}`}
+      aria-label={label}
+      aria-disabled={blocked || undefined}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -62,7 +76,7 @@ export function MenuItem({ item, onSelect, className = '' }: MenuItemProps) {
     >
       <CardContent className="p-4">
         {/* Item Name */}
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-[56px]">
+        <h3 className={`font-semibold text-lg mb-2 line-clamp-2 min-h-[56px] ${blocked ? 'line-through text-gray-500' : ''}`}>
           {item.name}
         </h3>
 
@@ -73,26 +87,31 @@ export function MenuItem({ item, onSelect, className = '' }: MenuItemProps) {
             €{item.price.toFixed(2)}
           </div>
 
-          {/* Stock Level */}
-          <div
-            className={`
-              flex items-center gap-1 text-sm font-medium
-              ${isOutOfStock ? 'text-destructive' : 'text-muted-foreground'}
-            `}
-          >
-            {isOutOfStock && (
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
-            )}
-            <span>
-              Stock: {item.stockLevel}
-            </span>
-          </div>
+          {/* Estado: esgotado / stock */}
+          {blocked ? (
+            <div className="flex items-center gap-1 text-sm font-semibold text-red-700">
+              <Ban className="h-4 w-4" aria-hidden="true" />
+              <span>Esgotado</span>
+            </div>
+          ) : hasStock ? (
+            <div
+              className={`
+                flex items-center gap-1 text-sm font-medium
+                ${item.stockLevel < 5 ? 'text-amber-700' : 'text-muted-foreground'}
+              `}
+            >
+              {item.stockLevel < 5 && <AlertCircle className="h-4 w-4" aria-hidden="true" />}
+              <span>
+                Stock: {item.stockLevel}
+              </span>
+            </div>
+          ) : null}
         </div>
 
-        {/* Out of stock warning */}
-        {isOutOfStock && (
-          <div className="mt-2 text-xs text-destructive font-medium">
-            Sem stock disponível
+        {/* Porque está esgotado */}
+        {blocked && (
+          <div className="mt-2 text-xs text-red-700 font-medium">
+            {blockedByHand ? 'Bloqueado nas Definições' : 'Stock a 0 — reponha na página Stock'}
           </div>
         )}
       </CardContent>

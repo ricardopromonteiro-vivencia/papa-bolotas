@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sync Queue Service
  * 
  * Manages the offline change queue for synchronization with Supabase.
@@ -83,7 +83,7 @@ export class SyncQueueService {
       return queueItem;
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to add item to sync queue: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao adicionar artigo à fila de sincronização: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'ADD_QUEUE_ERROR'
       );
     }
@@ -104,7 +104,7 @@ export class SyncQueueService {
         .sortBy('timestamp');
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to get pending items: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao obter os artigos pendentes: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'GET_PENDING_ERROR'
       );
     }
@@ -128,7 +128,7 @@ export class SyncQueueService {
       return items.filter(item => item.retryCount < SYNC_CONFIG.MAX_RETRIES);
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to get failed items: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao obter os artigos com falha: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'GET_FAILED_ERROR'
       );
     }
@@ -147,7 +147,7 @@ export class SyncQueueService {
       });
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to mark item as syncing: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao marcar o artigo como a sincronizar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'MARK_SYNCING_ERROR'
       );
     }
@@ -170,7 +170,7 @@ export class SyncQueueService {
       }
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to mark item as synced: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao marcar o artigo como sincronizado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'MARK_SYNCED_ERROR'
       );
     }
@@ -190,7 +190,7 @@ export class SyncQueueService {
       const item = await db.syncQueue.get(itemId);
       
       if (!item) {
-        throw new SyncQueueError('Queue item not found', 'ITEM_NOT_FOUND');
+        throw new SyncQueueError('Artigo da fila não encontrado', 'ITEM_NOT_FOUND');
       }
 
       const newRetryCount = item.retryCount + 1;
@@ -209,7 +209,7 @@ export class SyncQueueService {
       }
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to mark item as failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao marcar o artigo como falhado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'MARK_FAILED_ERROR'
       );
     }
@@ -270,7 +270,7 @@ export class SyncQueueService {
       }
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to reset item to pending: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao repor o artigo como pendente: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'RESET_PENDING_ERROR'
       );
     }
@@ -292,7 +292,7 @@ export class SyncQueueService {
       }
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to remove item from queue: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao remover o artigo da fila: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'REMOVE_QUEUE_ERROR'
       );
     }
@@ -318,7 +318,7 @@ export class SyncQueueService {
       }
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to clear synced items: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao limpar os artigos sincronizados: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'CLEAR_SYNCED_ERROR'
       );
     }
@@ -351,7 +351,7 @@ export class SyncQueueService {
       return { pending, syncing, synced, failed, total };
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to get queue stats: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao obter as estatísticas da fila: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'GET_STATS_ERROR'
       );
     }
@@ -372,7 +372,7 @@ export class SyncQueueService {
         .toArray();
     } catch (error) {
       throw new SyncQueueError(
-        `Failed to get items for entity: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao obter os artigos da entidade: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'GET_ENTITY_ITEMS_ERROR'
       );
     }

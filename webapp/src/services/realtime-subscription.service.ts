@@ -109,7 +109,7 @@ export class RealtimeSubscriptionService {
       }
     } catch (error) {
       throw new RealtimeSubscriptionError(
-        `Failed to subscribe to real-time updates: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao subscrever as atualizações em tempo real: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'SUBSCRIPTION_FAILED'
       );
     }

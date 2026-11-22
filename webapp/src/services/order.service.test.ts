@@ -369,22 +369,49 @@ describe('OrderService', () => {
       expect(adjustments[0].newLevel).toBe(8);
     });
 
-    it('should allow negative stock levels', async () => {
+    // Mudança de regra: a base de dados não aceita stock negativo, por isso um pedido
+    // com mais unidades do que o stock é recusado (o artigo fica "esgotado")
+    it('should reject orders that exceed available stock and keep stock unchanged', async () => {
       const items = [
         {
           menuItemId: mockMenuItem.id,
           menuItemName: mockMenuItem.name,
-          quantity: 15, // More than available stock
+          quantity: 15, // More than available stock (10)
           unitPrice: 5.50,
           subtotal: 82.50,
         },
+      ];
+
+      await expect(orderService.createOrder(mockSessionId, items)).rejects.toMatchObject({
+        code: 'ITEM_UNAVAILABLE',
+      });
+
+      const updatedItem = await db.menuItems.get(mockMenuItem.id);
+      expect(updatedItem?.stockLevel).toBe(10);
+    });
+
+    it('should reject items blocked by hand', async () => {
+      await db.menuItems.update(mockMenuItem.id, { isAvailable: false });
+      const items = [
+        { menuItemId: mockMenuItem.id, menuItemName: mockMenuItem.name, quantity: 1, unitPrice: 5.50, subtotal: 5.50 },
+      ];
+
+      await expect(orderService.createOrder(mockSessionId, items)).rejects.toMatchObject({
+        code: 'ITEM_UNAVAILABLE',
+      });
+    });
+
+    it('should not touch stock of items without stock control', async () => {
+      await db.menuItems.update(mockMenuItem.id, { trackStock: false, stockLevel: 0 });
+      const items = [
+        { menuItemId: mockMenuItem.id, menuItemName: mockMenuItem.name, quantity: 3, unitPrice: 5.50, subtotal: 16.50 },
       ];
 
       const order = await orderService.createOrder(mockSessionId, items);
       await orderService.registerOrder(order);
 
       const updatedItem = await db.menuItems.get(mockMenuItem.id);
-      expect(updatedItem?.stockLevel).toBe(-5);
+      expect(updatedItem?.stockLevel).toBe(0);
     });
 
     it('should queue for sync when offline', async () => {
@@ -944,8 +971,8 @@ describe('OrderService', () => {
         a => a.adjustmentType === AdjustmentType.CANCELLATION
       );
 
-      expect(cancellationAdjustment?.reason).toContain(`Order #${registered.orderNumber}`);
-      expect(cancellationAdjustment?.reason).toContain('cancelled');
+      expect(cancellationAdjustment?.reason).toContain(`Pedido #${registered.orderNumber}`);
+      expect(cancellationAdjustment?.reason).toContain('cancelado');
     });
 
     it('should queue cancellation for sync when offline', async () => {

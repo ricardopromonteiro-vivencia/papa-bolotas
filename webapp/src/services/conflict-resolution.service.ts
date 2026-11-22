@@ -104,7 +104,7 @@ export class ConflictResolutionService {
 
         default:
           throw new ConflictResolutionError(
-            `Unknown resolution strategy: ${strategy}`,
+            `Estratégia de resolução desconhecida: ${strategy}`,
             'UNKNOWN_STRATEGY'
           );
       }
@@ -124,7 +124,7 @@ export class ConflictResolutionService {
       return resolvedVersion;
     } catch (error) {
       throw new ConflictResolutionError(
-        `Failed to resolve conflict: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao resolver o conflito: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'RESOLUTION_FAILED'
       );
     }
@@ -253,7 +253,7 @@ export class ConflictResolutionService {
       );
     } catch (error) {
       throw new ConflictResolutionError(
-        `Failed to get conflict history: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao obter o histórico de conflitos: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'GET_HISTORY_ERROR'
       );
     }

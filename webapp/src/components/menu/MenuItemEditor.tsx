@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Category, MenuItem } from '@/types';
+import { Category, MenuItem, tracksStock, isItemAvailable } from '@/types';
 import { createMenuItemSchema, validateFormData } from '@/types/validation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Trash2 } from 'lucide-react';
 
 interface MenuItemEditorProps {
   /** Existing menu item to edit (undefined for create mode) */
@@ -33,6 +34,8 @@ interface MenuItemEditorProps {
   onSave: (item: Partial<MenuItem>) => void | Promise<void>;
   /** Callback when form is cancelled */
   onCancel?: () => void;
+  /** Callback to delete the item (edit mode only); errors are shown in the form */
+  onDelete?: (item: MenuItem) => void | Promise<void>;
   /** Loading state while saving */
   isLoading?: boolean;
 }
@@ -67,6 +70,7 @@ export function MenuItemEditor({
   item,
   onSave,
   onCancel,
+  onDelete,
   isLoading = false,
 }: MenuItemEditorProps) {
   // Form state
@@ -76,6 +80,11 @@ export function MenuItemEditor({
     price: item?.price.toFixed(2) || '',
     stockLevel: item?.stockLevel.toString() || '0',
   });
+
+  // Sem controlo de stock → o campo de stock desaparece
+  const [trackStock, setTrackStock] = useState(item ? tracksStock(item) : true);
+  // Bloqueado (esgotado) → não pode ser adicionado a pedidos
+  const [available, setAvailable] = useState(item ? isItemAvailable(item) : true);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<keyof FormData, boolean>>({
@@ -88,6 +97,8 @@ export function MenuItemEditor({
   // Update form when item prop changes (edit mode)
   useEffect(() => {
     if (item) {
+      setTrackStock(tracksStock(item));
+      setAvailable(isItemAvailable(item));
       setFormData({
         name: item.name,
         category: item.category,
@@ -109,9 +120,9 @@ export function MenuItemEditor({
     switch (name) {
       case 'name':
         if (!value.trim()) {
-          newErrors.name = 'Name is required';
+          newErrors.name = 'O nome é obrigatório';
         } else if (value.length > 100) {
-          newErrors.name = 'Name must be 100 characters or less';
+          newErrors.name = 'O nome não pode ter mais de 100 caracteres';
         } else {
           delete newErrors.name;
         }
@@ -119,7 +130,7 @@ export function MenuItemEditor({
 
       case 'category':
         if (!value) {
-          newErrors.category = 'Category is required';
+          newErrors.category = 'A categoria é obrigatória';
         } else {
           delete newErrors.category;
         }
@@ -128,13 +139,13 @@ export function MenuItemEditor({
       case 'price':
         const priceNum = parseFloat(value);
         if (!value) {
-          newErrors.price = 'Price is required';
+          newErrors.price = 'O preço é obrigatório';
         } else if (isNaN(priceNum)) {
-          newErrors.price = 'Price must be a valid number';
+          newErrors.price = 'O preço deve ser um número válido';
         } else if (priceNum <= 0) {
-          newErrors.price = 'Price must be greater than zero';
+          newErrors.price = 'O preço deve ser maior que zero';
         } else if (priceNum > 9999.99) {
-          newErrors.price = 'Price too high (max 9999.99)';
+          newErrors.price = 'Preço demasiado alto (máx. 9999.99)';
         } else {
           delete newErrors.price;
         }
@@ -143,13 +154,13 @@ export function MenuItemEditor({
       case 'stockLevel':
         const stockNum = parseInt(value, 10);
         if (!value && value !== '0') {
-          newErrors.stockLevel = 'Stock level is required';
+          newErrors.stockLevel = 'O nível de stock é obrigatório';
         } else if (isNaN(stockNum)) {
-          newErrors.stockLevel = 'Stock level must be a valid number';
+          newErrors.stockLevel = 'O stock deve ser um número válido';
         } else if (stockNum < 0) {
-          newErrors.stockLevel = 'Stock level cannot be negative';
+          newErrors.stockLevel = 'O stock não pode ser negativo';
         } else if (!Number.isInteger(stockNum)) {
-          newErrors.stockLevel = 'Stock level must be a whole number';
+          newErrors.stockLevel = 'O stock deve ser um número inteiro';
         } else {
           delete newErrors.stockLevel;
         }
@@ -182,6 +193,12 @@ export function MenuItemEditor({
   /**
    * Validates entire form
    */
+  /** Sem controlo de stock: mantém o valor que já existia (não destrói dados) ou 0 num artigo novo. */
+  const stockWhenUntracked = () => {
+    const n = parseInt(formData.stockLevel, 10);
+    return Number.isInteger(n) && n >= 0 ? n : 0;
+  };
+
   const validateForm = (): boolean => {
     // Mark all fields as touched
     setTouched({
@@ -191,26 +208,27 @@ export function MenuItemEditor({
       stockLevel: true,
     });
 
-    // Validate all fields
+    // Validate all fields (sem controlo de stock, o campo de stock não conta)
     Object.keys(formData).forEach((key) => {
+      if (key === 'stockLevel' && !trackStock) return;
       validateField(key as keyof FormData, formData[key as keyof FormData]);
     });
 
     // Check if any field is empty
     if (!formData.name.trim()) {
-      setErrors((prev) => ({ ...prev, name: 'Name is required' }));
+      setErrors((prev) => ({ ...prev, name: 'O nome é obrigatório' }));
       return false;
     }
     if (!formData.category) {
-      setErrors((prev) => ({ ...prev, category: 'Category is required' }));
+      setErrors((prev) => ({ ...prev, category: 'A categoria é obrigatória' }));
       return false;
     }
     if (!formData.price) {
-      setErrors((prev) => ({ ...prev, price: 'Price is required' }));
+      setErrors((prev) => ({ ...prev, price: 'O preço é obrigatório' }));
       return false;
     }
-    if (!formData.stockLevel && formData.stockLevel !== '0') {
-      setErrors((prev) => ({ ...prev, stockLevel: 'Stock level is required' }));
+    if (trackStock && !formData.stockLevel && formData.stockLevel !== '0') {
+      setErrors((prev) => ({ ...prev, stockLevel: 'O nível de stock é obrigatório' }));
       return false;
     }
 
@@ -219,15 +237,25 @@ export function MenuItemEditor({
       name: formData.name.trim(),
       category: formData.category,
       price: parseFloat(formData.price),
-      stockLevel: parseInt(formData.stockLevel, 10),
+      stockLevel: trackStock ? parseInt(formData.stockLevel, 10) : stockWhenUntracked(),
       isActive: item?.isActive ?? true,
-      lastModifiedBy: item?.lastModifiedBy,
+      trackStock,
+      isAvailable: available,
+      // Artigos criados por SQL têm last_modified_by a null; o schema só aceita uuid ou undefined
+      lastModifiedBy: item?.lastModifiedBy ?? undefined,
     };
 
     const result = validateFormData(createMenuItemSchema, validationData);
 
     if (!result.success) {
-      setErrors(result.errors);
+      // Erros sem campo visível no formulário passam a aparecer como erro geral
+      const visibleFields = ['name', 'category', 'price', 'stockLevel'];
+      const hidden = Object.entries(result.errors).filter(([key]) => !visibleFields.includes(key));
+      setErrors(
+        hidden.length > 0
+          ? { ...result.errors, general: `Dados inválidos: ${hidden.map(([, msg]) => msg).join('; ')}` }
+          : result.errors
+      );
       return false;
     }
 
@@ -249,7 +277,9 @@ export function MenuItemEditor({
         name: formData.name.trim(),
         category: formData.category as Category,
         price: parseFloat(formData.price),
-        stockLevel: parseInt(formData.stockLevel, 10),
+        stockLevel: trackStock ? parseInt(formData.stockLevel, 10) : stockWhenUntracked(),
+        trackStock,
+        isAvailable: available,
       };
 
       // If editing, include the id
@@ -277,8 +307,24 @@ export function MenuItemEditor({
       }
     } catch (error) {
       setErrors({
-        general: error instanceof Error ? error.message : 'Failed to save menu item',
+        general: error instanceof Error ? error.message : 'Erro ao guardar o artigo',
       });
+    }
+  };
+
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!item || !onDelete) return;
+    setDeleting(true);
+    try {
+      await onDelete(item);
+    } catch (error) {
+      setErrors({ general: error instanceof Error ? error.message : 'Erro ao eliminar o artigo' });
+      setConfirmingDelete(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -295,29 +341,29 @@ export function MenuItemEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      {/* Form Title */}
+      {/* Título do formulário */}
       <div>
         <h3 className="text-lg font-semibold">
-          {isEditMode ? 'Edit Menu Item' : 'Add New Menu Item'}
+          {isEditMode ? 'Editar Artigo do Menu' : 'Adicionar Novo Artigo ao Menu'}
         </h3>
         <p className="text-sm text-muted-foreground">
           {isEditMode
-            ? 'Update the details of this menu item'
-            : 'Enter the details for the new menu item'}
+            ? 'Atualize os detalhes deste artigo do menu'
+            : 'Introduza os detalhes do novo artigo do menu'}
         </p>
       </div>
 
-      {/* General Error */}
+      {/* Erro geral */}
       {errors.general && (
         <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
           {errors.general}
         </div>
       )}
 
-      {/* Name Field */}
+      {/* Nome */}
       <div className="space-y-2">
         <Label htmlFor="name">
-          Name <span className="text-destructive">*</span>
+          Nome <span className="text-destructive">*</span>
         </Label>
         <Input
           id="name"
@@ -325,7 +371,7 @@ export function MenuItemEditor({
           value={formData.name}
           onChange={(e) => handleInputChange('name', e.target.value)}
           onBlur={() => handleBlur('name')}
-          placeholder="e.g., Sandes de Leitão"
+          placeholder="ex: Sandes de Presunto"
           maxLength={100}
           disabled={isLoading}
           aria-invalid={!!errors.name}
@@ -338,10 +384,10 @@ export function MenuItemEditor({
         )}
       </div>
 
-      {/* Category Field */}
+      {/* Categoria */}
       <div className="space-y-2">
         <Label htmlFor="category">
-          Category <span className="text-destructive">*</span>
+          Categoria <span className="text-destructive">*</span>
         </Label>
         <Select
           value={formData.category}
@@ -357,7 +403,7 @@ export function MenuItemEditor({
             aria-invalid={!!errors.category}
             aria-describedby={errors.category ? 'category-error' : undefined}
           >
-            <SelectValue placeholder="Select a category" />
+            <SelectValue placeholder="Selecionar categoria" />
           </SelectTrigger>
           <SelectContent>
             {categories.map((category) => (
@@ -374,10 +420,10 @@ export function MenuItemEditor({
         )}
       </div>
 
-      {/* Price Field */}
+      {/* Preço */}
       <div className="space-y-2">
         <Label htmlFor="price">
-          Price (€) <span className="text-destructive">*</span>
+          Preço (€) <span className="text-destructive">*</span>
         </Label>
         <Input
           id="price"
@@ -399,14 +445,53 @@ export function MenuItemEditor({
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          Enter the price in euros (e.g., 5.50)
+          Introduz o preço em euros (ex: 5.50)
         </p>
       </div>
 
-      {/* Stock Level Field */}
+      {/* Controlo de stock e disponibilidade */}
+      <div className="space-y-3 rounded-md border p-3">
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={!trackStock}
+            onChange={(e) => {
+              setTrackStock(!e.target.checked);
+              setErrors((prev) => { const { stockLevel: _ignored, ...rest } = prev; return rest; });
+            }}
+            disabled={isLoading}
+          />
+          <span>
+            <span className="font-medium">Sem controlo de stock</span>
+            <span className="block text-xs text-muted-foreground">
+              O artigo não tem número de stock e não aparece na página de Stock.
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={!available}
+            onChange={(e) => setAvailable(!e.target.checked)}
+            disabled={isLoading}
+          />
+          <span>
+            <span className={`font-medium ${!available ? 'text-red-700' : ''}`}>Bloqueado (esgotado)</span>
+            <span className="block text-xs text-muted-foreground">
+              Não pode ser adicionado a pedidos até ser desbloqueado.
+            </span>
+          </span>
+        </label>
+      </div>
+
+      {/* Nível de Stock (só com controlo de stock) */}
+      {trackStock && (
       <div className="space-y-2">
         <Label htmlFor="stockLevel">
-          Initial Stock Level <span className="text-destructive">*</span>
+          {isEditMode ? 'Stock Atual' : 'Stock Inicial'} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="stockLevel"
@@ -428,15 +513,49 @@ export function MenuItemEditor({
         )}
         <p className="text-xs text-muted-foreground">
           {isEditMode
-            ? 'Current stock level. Use stock management to adjust.'
-            : 'Starting quantity for this item'}
+            ? 'Nível de stock atual. Usa a gestão de stock para ajustes detalhados.'
+            : 'Quantidade inicial para este artigo'}
         </p>
       </div>
+      )}
 
-      {/* Form Actions */}
+      {/* Eliminar (só ao editar) — pede confirmação antes */}
+      {isEditMode && onDelete && (
+        <div className="rounded-md border border-red-200 bg-red-50/50 p-3">
+          {confirmingDelete ? (
+            <div className="space-y-2">
+              <p className="text-sm text-red-800">
+                Eliminar <strong>{item?.name}</strong>? Deixa de aparecer no menu e no stock. Os pedidos e
+                relatórios antigos mantêm-se.
+              </p>
+              <div className="flex gap-2">
+                <Button type="button" variant="destructive" size="sm" onClick={handleDelete} disabled={isLoading || deleting}>
+                  {deleting ? 'A eliminar...' : 'Sim, eliminar'}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+                  Não
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-red-700 hover:bg-red-100 hover:text-red-800"
+              onClick={() => setConfirmingDelete(true)}
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Eliminar artigo
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Ações */}
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? 'Saving...' : isEditMode ? 'Update Item' : 'Add Item'}
+          {isLoading ? 'A guardar...' : isEditMode ? 'Guardar Alterações' : 'Adicionar Artigo'}
         </Button>
         {onCancel && (
           <Button
@@ -445,7 +564,7 @@ export function MenuItemEditor({
             onClick={handleCancel}
             disabled={isLoading}
           >
-            Cancel
+            Cancelar
           </Button>
         )}
       </div>

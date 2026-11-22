@@ -10,9 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MenuItem } from '@/types';
+import { menuService } from '@/services/menu.service';
+import { useAuth } from '@/hooks/useAuth';
 import { Plus } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -27,7 +30,31 @@ export default function SettingsPage() {
     setEditorOpen(true);
   };
 
-  const handleSaved = () => {
+  const handleSaved = async (data: Partial<MenuItem>) => {
+    const fields = {
+      name: data.name!,
+      category: data.category!,
+      price: data.price!,
+      stockLevel: data.stockLevel!,
+      trackStock: data.trackStock !== false,
+      isAvailable: data.isAvailable !== false,
+      lastModifiedBy: user?.id,
+    };
+
+    // Erros lançados aqui aparecem no formulário (MenuItemEditor apanha-os)
+    if (editingItem) {
+      await menuService.updateMenuItem(editingItem.id, fields);
+    } else {
+      await menuService.createMenuItem({ ...fields, isActive: true });
+    }
+
+    setEditorOpen(false);
+    setRefreshKey(k => k + 1);
+  };
+
+  // Elimina o artigo do menu (fica inativo: o histórico de pedidos mantém-se)
+  const handleDelete = async (item: MenuItem) => {
+    await menuService.deleteMenuItem(item.id);
     setEditorOpen(false);
     setRefreshKey(k => k + 1);
   };
@@ -47,7 +74,7 @@ export default function SettingsPage() {
           <div className="flex justify-end mb-4">
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 mr-2" />
-              Novo Item
+              Novo Artigo
             </Button>
           </div>
 
@@ -73,14 +100,17 @@ export default function SettingsPage() {
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingItem ? 'Editar Item' : 'Novo Item de Menu'}
+            {/* O título visível é o do formulário; este fica para leitores de ecrã */}
+            <DialogTitle className="sr-only">
+              {editingItem ? 'Editar Artigo' : 'Novo Artigo de Menu'}
             </DialogTitle>
           </DialogHeader>
           <MenuItemEditor
+            key={editingItem?.id ?? 'new'}
             item={editingItem ?? undefined}
             onSave={handleSaved}
             onCancel={() => setEditorOpen(false)}
+            onDelete={handleDelete}
           />
         </DialogContent>
       </Dialog>

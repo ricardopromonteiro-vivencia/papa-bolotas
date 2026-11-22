@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Clock, DollarSign, ShoppingCart, Wifi, WifiOff } from 'lucide-react';
+import { ChevronDown, Clock, DollarSign, ShoppingCart, Wifi, WifiOff } from 'lucide-react';
+
+const COLLAPSED_KEY = 'papa-bolotas.sessionStatus.collapsed';
 import { useConnectionStore } from '@/store';
 import { sessionService } from '@/services/session.service';
 import type { Session, SalesReport } from '@/types';
@@ -61,6 +63,16 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
   const [statistics, setStatistics] = useState<SalesReport | null>(null);
   const [duration, setDuration] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  // Recolhido/expandido: fica lembrado neste aparelho
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem(COLLAPSED_KEY) === '1'; } catch { return false; }
+  });
+  const toggleCollapsed = () => {
+    setCollapsed(prev => {
+      try { localStorage.setItem(COLLAPSED_KEY, prev ? '0' : '1'); } catch { /* ignorar */ }
+      return !prev;
+    });
+  };
   const [error, setError] = useState<string | null>(null);
   
   const { status, isFullyConnected } = useConnectionStore();
@@ -87,7 +99,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
       } catch (err) {
         if (isMounted) {
           console.error('Failed to load session data:', err);
-          setError('Failed to load session data');
+          setError('Falha ao carregar dados da sessão');
         }
       } finally {
         if (isMounted) {
@@ -137,7 +149,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
       <div 
         className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
         role="status"
-        aria-label="Loading session status"
+        aria-label="A carregar estado da sessão"
       >
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
@@ -154,7 +166,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
         role="alert"
       >
         <p className="text-red-600 text-sm">
-          {error || 'Unable to load session information'}
+          {error || 'Não foi possível carregar as informações da sessão'}
         </p>
       </div>
     );
@@ -166,12 +178,25 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
     <div 
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
       role="region"
-      aria-label="Session status display"
+      aria-label="Estado da sessão"
     >
-      {/* Header with connection status */}
-      <div className="flex items-center justify-between mb-4">
+      {/* Cabeçalho: clicar em "Estado da Sessão" recolhe/expande o quadro */}
+      <div className={`flex items-center justify-between gap-3 ${collapsed ? '' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900">
-          Session Status
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            aria-controls="session-status-details"
+            title={collapsed ? 'Mostrar detalhes da sessão' : 'Esconder detalhes da sessão'}
+            className="flex items-center gap-1.5 rounded hover:text-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+          >
+            Estado da Sessão
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
+              aria-hidden="true"
+            />
+          </button>
         </h3>
         
         {/* Connection Indicator */}
@@ -187,7 +212,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
           `}
           role="status"
           aria-live="polite"
-          aria-label={`Connection status: ${fullyConnected ? 'online' : 'offline'}`}
+          aria-label={`Estado da ligação: ${fullyConnected ? 'online' : 'offline'}`}
         >
           {fullyConnected ? (
             <Wifi className="w-4 h-4" aria-hidden="true" />
@@ -195,11 +220,13 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
             <WifiOff className="w-4 h-4" aria-hidden="true" />
           )}
           <span>
-            {fullyConnected ? 'Online' : status.isOnline ? 'DB Issue' : 'Offline'}
+            {fullyConnected ? 'Online' : status.isOnline ? 'Problema na BD' : 'Offline'}
           </span>
         </div>
       </div>
 
+      {!collapsed && (
+      <div id="session-status-details">
       {/* Session Information Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Session Start Time */}
@@ -209,7 +236,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 uppercase tracking-wide">
-              Session Started
+              Início da Sessão
             </p>
             <p className="text-sm font-medium text-gray-900 mt-0.5">
               {formatDateTime(session.startedAt)}
@@ -224,7 +251,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 uppercase tracking-wide">
-              Duration
+              Duração
             </p>
             <p 
               className="text-sm font-medium text-gray-900 mt-0.5 font-mono"
@@ -243,13 +270,13 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 uppercase tracking-wide">
-              Orders
+              Pedidos
             </p>
             <p className="text-sm font-medium text-gray-900 mt-0.5">
               {statistics.completedOrders}
               {statistics.complimentaryOrders > 0 && (
                 <span className="text-xs text-gray-500 ml-1">
-                  (+{statistics.complimentaryOrders} comp)
+                  (+{statistics.complimentaryOrders} ofertas)
                 </span>
               )}
             </p>
@@ -263,7 +290,7 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 uppercase tracking-wide">
-              Revenue
+              Receita
             </p>
             <p className="text-sm font-medium text-gray-900 mt-0.5">
               {formatCurrency(statistics.totalRevenue)}
@@ -276,9 +303,11 @@ export function SessionStatusDisplay({ sessionId }: SessionStatusDisplayProps) {
       {statistics.cancelledOrders > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
-            {statistics.cancelledOrders} cancelled order{statistics.cancelledOrders !== 1 ? 's' : ''}
+            {statistics.cancelledOrders} {statistics.cancelledOrders !== 1 ? 'pedidos cancelados' : 'pedido cancelado'}
           </p>
         </div>
+      )}
+      </div>
       )}
     </div>
   );

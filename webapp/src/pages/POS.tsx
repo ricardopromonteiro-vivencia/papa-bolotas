@@ -13,6 +13,7 @@ import { OrderPanel, OrderPanelRef } from '@/components/orders/OrderPanel';
 import { OrderHistory } from '@/components/orders/OrderHistory';
 import { SessionStatusDisplay } from '@/components/session/SessionStatusDisplay';
 import { CashRegisterClosure } from '@/components/session/CashRegisterClosure';
+import { PrinterStatusCard } from '@/components/printer/PrinterStatus';
 import { MenuItem, Session } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -24,6 +25,8 @@ export default function POSPage() {
   const orderPanelRef = useRef<OrderPanelRef>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [closureOpen, setClosureOpen] = useState(false);
+  // Recarrega a lista de artigos depois de cada pedido (stock atualizado e esgotados bloqueados)
+  const [menuRefresh, setMenuRefresh] = useState(0);
 
   /* ── start / restore session ── */
   useEffect(() => {
@@ -68,21 +71,22 @@ export default function POSPage() {
   return (
     <div className="h-full flex flex-col">
       {/* ── Top bar ── */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shrink-0">
+      <div className="flex flex-wrap items-center gap-3 px-4 py-2 bg-white border-b border-gray-200 shrink-0">
         <SessionStatusDisplay sessionId={session.id} />
+        <PrinterStatusCard className="w-full sm:w-auto sm:max-w-xs" />
         <Button
           variant="outline"
           size="sm"
           onClick={() => setClosureOpen(true)}
-          className="text-red-600 border-red-200 hover:bg-red-50"
+          className="ml-auto text-red-600 border-red-200 hover:bg-red-50"
         >
           <DoorOpen className="h-4 w-4 mr-1" />
           Fechar Caixa
         </Button>
       </div>
 
-      {/* ── Main 2-col layout ── */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* ── Layout principal: 2 colunas no computador, empilhado no telemóvel ── */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left: menu + history (tabs on mobile) */}
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="menu" className="h-full flex flex-col">
@@ -92,7 +96,7 @@ export default function POSPage() {
             </TabsList>
 
             <TabsContent value="menu" className="flex-1 overflow-y-auto px-4 pb-4">
-              <MenuGrid onItemSelect={handleItemSelect} />
+              <MenuGrid key={menuRefresh} onItemSelect={handleItemSelect} />
             </TabsContent>
 
             <TabsContent value="history" className="flex-1 overflow-y-auto px-4 pb-4">
@@ -101,21 +105,15 @@ export default function POSPage() {
           </Tabs>
         </div>
 
-        {/* Right: order panel (always visible on desktop) */}
-        <div className="hidden md:flex flex-col w-80 border-l border-gray-200 bg-white overflow-y-auto">
+        {/* Painel do pedido: um único componente (à direita no computador, em baixo no telemóvel).
+            Tem de ser só um, porque o ref aponta sempre para a última instância montada. */}
+        <div className="shrink-0 w-full md:w-80 lg:w-96 max-h-[45vh] md:max-h-none border-t md:border-t-0 md:border-l border-gray-200 bg-white overflow-y-auto">
           <OrderPanel
             ref={orderPanelRef}
             sessionId={session.id}
+            onOrderRegistered={() => setMenuRefresh(k => k + 1)}
           />
         </div>
-      </div>
-
-      {/* Mobile: floating order panel via tab */}
-      <div className="md:hidden border-t border-gray-200 bg-white max-h-80 overflow-y-auto">
-        <OrderPanel
-          ref={orderPanelRef}
-          sessionId={session.id}
-        />
       </div>
 
       {/* Cash register closure dialog */}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Price List Service
  * 
  * Generates PDF price lists with menu items grouped by category.
@@ -103,7 +103,7 @@ export class PriceListService {
       // Validate input
       if (!menuItems || menuItems.length === 0) {
         throw new PriceListServiceError(
-          'Cannot generate price list: no menu items provided',
+          'Não é possível gerar a lista de preços: nenhum artigo do menu fornecido',
           'EMPTY_MENU'
         );
       }
@@ -191,7 +191,7 @@ export class PriceListService {
         throw error;
       }
       throw new PriceListServiceError(
-        `Failed to generate price list: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Falha ao gerar a lista de preços: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         'PDF_GENERATION_ERROR'
       );
     }
@@ -215,7 +215,7 @@ export class PriceListService {
         throw error;
       }
       throw new PriceListServiceError(
-        'Failed to download price list',
+        'Falha ao transferir a lista de preços',
         'DOWNLOAD_ERROR'
       );
     }
@@ -238,7 +238,7 @@ export class PriceListService {
         throw error;
       }
       throw new PriceListServiceError(
-        'Failed to generate PDF blob',
+        'Falha ao gerar o ficheiro PDF',
         'BLOB_GENERATION_ERROR'
       );
     }

@@ -20,6 +20,9 @@
 import { useState, useEffect } from 'react';
 import { Order } from '@/types';
 import { orderService } from '@/services';
+import { receiptService } from '@/services/receipt.service';
+import { printReceipt, printTickets, printKitchenCancellation } from '@/lib/print-receipt';
+import { buildCustomerTicket } from '@/lib/ticket';
 import { Button } from '@/components/ui/button';
 import { CancelOrderDialog } from './CancelOrderDialog';
 import { 
@@ -68,7 +71,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
         onRefresh(sessionOrders);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load orders';
+      const message = err instanceof Error ? err.message : 'Falha ao carregar pedidos';
       setError(message);
       console.error('Failed to load orders:', err);
     } finally {
@@ -113,22 +116,27 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
     // Refresh order list to show updated status
     await loadOrders();
     
-    // Show success message
+    // Talão de cancelamento para a cozinha (usa os artigos do pedido original se o devolvido vier sem eles)
+    const forKitchen =
+      cancelledOrder.items?.length || !orderToCancel
+        ? cancelledOrder
+        : { ...cancelledOrder, items: orderToCancel.items };
+    let printNote = ' A cozinha foi avisada.';
+    try {
+      await printKitchenCancellation(forKitchen);
+    } catch (err) {
+      console.error('Failed to print kitchen cancellation:', err);
+      printNote = ' Atenção: não foi possível imprimir o aviso para a cozinha.';
+    }
+
     setSuccessMessage(
-      `Order #${cancelledOrder.orderNumber} has been cancelled. Stock has been restored.`
+      `O pedido #${cancelledOrder.orderNumber} foi cancelado. O stock foi reposto.${printNote}`
     );
 
     // Clear success message after 5 seconds
     setTimeout(() => {
       setSuccessMessage(null);
     }, 5000);
-
-    // Generate cancellation receipt
-    try {
-      await orderService.generateReceipt(cancelledOrder.id);
-    } catch (err) {
-      console.error('Failed to generate cancellation receipt:', err);
-    }
   };
 
   /**
@@ -138,13 +146,15 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
    */
   const handlePrintReceipt = async (order: Order) => {
     try {
-      const receipt = await orderService.generateReceipt(order.id);
-      // TODO: Integrate with receipt printing component
-      console.log('Receipt:', receipt);
-      // For now, just show receipt data
-      alert(`Receipt for Order #${receipt.orderNumber}\n\nTotal: €${receipt.total.toFixed(2)}\nDate: ${receipt.date.toLocaleString()}`);
+      // Reimpressão: só o talão do cliente (o da cozinha já saiu quando o pedido foi registado)
+      if (order.isCancelled) {
+        await printReceipt(receiptService.generateCancellationReceipt(order), `Pedido #${order.orderNumber}`);
+      } else {
+        await printTickets([buildCustomerTicket(order)]);
+      }
     } catch (err) {
       console.error('Failed to print receipt:', err);
+      alert(`Não foi possível imprimir o recibo do pedido #${order.orderNumber}.`);
     }
   };
 
@@ -164,7 +174,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
   } => {
     if (order.isCancelled) {
       return {
-        label: 'Cancelled',
+        label: 'Cancelado',
         className: 'text-red-600 bg-red-50',
         icon: <XCircle className="h-4 w-4" />
       };
@@ -172,14 +182,14 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
     
     if (order.isComplimentary) {
       return {
-        label: 'Complimentary',
+        label: 'Oferta',
         className: 'text-green-600 bg-green-50',
         icon: <Gift className="h-4 w-4" />
       };
     }
 
     return {
-      label: 'Completed',
+      label: 'Concluído',
       className: 'text-blue-600 bg-blue-50',
       icon: null
     };
@@ -198,7 +208,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-center h-32 text-gray-400">
           <RefreshCw className="h-6 w-6 animate-spin mr-2" />
-          <p>Loading orders...</p>
+          <p>A carregar pedidos...</p>
         </div>
       </div>
     );
@@ -209,7 +219,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="bg-red-50 border border-red-200 rounded p-4">
-          <p className="text-red-700 font-medium mb-2">Error loading orders</p>
+          <p className="text-red-700 font-medium mb-2">Erro ao carregar pedidos</p>
           <p className="text-red-600 text-sm">{error}</p>
           <Button
             onClick={handleRefresh}
@@ -218,7 +228,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
             className="mt-3"
           >
             <RefreshCw className="h-4 w-4 mr-1" />
-            Retry
+            Tentar novamente
           </Button>
         </div>
       </div>
@@ -230,9 +240,9 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold">Order History</h2>
+          <h2 className="text-2xl font-bold">Histórico de Pedidos</h2>
           <p className="text-sm text-gray-600 mt-1">
-            {orders.length} {orders.length === 1 ? 'order' : 'orders'} in current session
+            {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'} na sessão atual
           </p>
         </div>
         <Button
@@ -242,7 +252,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
           size="sm"
         >
           <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
+          Atualizar
         </Button>
       </div>
 
@@ -256,7 +266,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
       {/* Orders List */}
       {orders.length === 0 ? (
         <div className="flex items-center justify-center h-32 text-gray-400 border-2 border-dashed rounded-lg">
-          <p>No orders yet in this session</p>
+          <p>Ainda não há pedidos nesta sessão</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -317,7 +327,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                   <div className="px-4 py-3 bg-white border-t">
                     {/* Order Items */}
                     <div className="space-y-2 mb-3">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Items:</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Artigos:</p>
                       {order.items.map((item) => (
                         <div
                           key={item.id}
@@ -342,7 +352,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                     {order.observations && (
                       <div className="mb-3 p-2 bg-gray-50 rounded">
                         <p className="text-xs font-medium text-gray-700 mb-1">
-                          Observations:
+                          Observações:
                         </p>
                         <p className="text-sm text-gray-600">{order.observations}</p>
                       </div>
@@ -351,21 +361,21 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                     {/* Order Metadata */}
                     <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
                       <div>
-                        <span className="font-medium">Created:</span>{' '}
+                        <span className="font-medium">Criado:</span>{' '}
                         {order.createdAt.toLocaleString()}
                       </div>
                       {order.cancelledAt && (
                         <div>
-                          <span className="font-medium">Cancelled:</span>{' '}
+                          <span className="font-medium">Cancelado:</span>{' '}
                           {order.cancelledAt.toLocaleString()}
                         </div>
                       )}
                       <div>
-                        <span className="font-medium">Items:</span>{' '}
+                        <span className="font-medium">Artigos:</span>{' '}
                         {order.items.reduce((sum, item) => sum + item.quantity, 0)}
                       </div>
                       <div>
-                        <span className="font-medium">Status:</span>{' '}
+                        <span className="font-medium">Estado:</span>{' '}
                         {status.label}
                       </div>
                     </div>
@@ -375,7 +385,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                       <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded">
                         <p className="text-sm text-green-700 font-medium flex items-center gap-2">
                           <Gift className="h-4 w-4" />
-                          This order was complimentary (no charge)
+                          Este pedido foi uma oferta (sem custo)
                         </p>
                       </div>
                     )}
@@ -384,7 +394,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                       <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
                         <p className="text-sm text-red-700 font-medium flex items-center gap-2">
                           <XCircle className="h-4 w-4" />
-                          This order was cancelled and stock was restored
+                          Este pedido foi cancelado e o stock foi reposto
                         </p>
                       </div>
                     )}
@@ -398,7 +408,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                         className="flex-1"
                       >
                         <Printer className="h-4 w-4 mr-1" />
-                        Print Receipt
+                        Imprimir Recibo
                       </Button>
                       
                       {!order.isCancelled && (
@@ -409,7 +419,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                           className="flex-1"
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
-                          Cancel Order
+                          Cancelar Pedido
                         </Button>
                       )}
                     </div>

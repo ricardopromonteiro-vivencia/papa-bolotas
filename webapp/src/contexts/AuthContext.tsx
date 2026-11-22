@@ -12,7 +12,6 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { authService } from '@/services/auth.service';
-import { supabase } from '@/lib/supabase';
 import { User, AuthSession } from '@/types';
 
 /**
@@ -263,29 +262,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!isMounted) return;
 
         if (isValid) {
-          // Get current user asynchronously
-          const currentUser = await authService.getCurrentUserAsync();
-          
-          if (currentUser) {
-            setUser(currentUser);
-            
-            // Get the actual session to have proper expiration time
-            const { data: { session: supabaseSession } } = await supabase.auth.getSession();
-            
-            if (supabaseSession) {
-              const authSession: AuthSession = {
-                user: currentUser,
-                accessToken: supabaseSession.access_token,
-                refreshToken: supabaseSession.refresh_token || '',
-                expiresAt: new Date((supabaseSession.expires_at || 0) * 1000),
-              };
-              
-              setSession(authSession);
-              setupAutoRefresh(authSession);
+          // Restore the full session (user, tokens and real expiration time)
+          const restoredSession = await authService.getCurrentSession();
 
-              if (import.meta.env.DEV) {
-                console.log('Restored authentication state');
-              }
+          if (!isMounted) return;
+
+          if (restoredSession) {
+            setUser(restoredSession.user);
+            setSession(restoredSession);
+            setupAutoRefresh(restoredSession);
+
+            if (import.meta.env.DEV) {
+              console.log('Restored authentication state');
             }
           }
         } else {

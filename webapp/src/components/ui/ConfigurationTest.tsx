@@ -21,27 +21,27 @@ export function ConfigurationTest() {
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-foreground">
-            Papa Bolotas - Configuration Test
+            Papa Bolotas - Teste de Configuração
           </h1>
           <p className="text-muted-foreground">
-            Tailwind CSS & shadcn/ui configuration verification
+            Verificação da configuração de Tailwind CSS e shadcn/ui
           </p>
         </div>
 
         {/* Responsive Breakpoints Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Responsive Breakpoints</h2>
+          <h2 className="text-2xl font-semibold mb-4">Pontos de Quebra Responsivos</h2>
           <div className="space-y-2">
             <div className="mobile:bg-red-100 tablet:bg-blue-100 desktop:bg-green-100 p-4 rounded">
               <p className="font-medium">
                 <span className="mobile:inline tablet:hidden desktop:hidden">
-                  Mobile: 320px+ (Red background)
+                  Telemóvel: 320px+ (Fundo vermelho)
                 </span>
                 <span className="mobile:hidden tablet:inline desktop:hidden">
-                  Tablet: 768px+ (Blue background)
+                  Tablet: 768px+ (Fundo azul)
                 </span>
                 <span className="mobile:hidden tablet:hidden desktop:inline">
-                  Desktop: 1025px+ (Green background)
+                  Computador: 1025px+ (Fundo verde)
                 </span>
               </p>
             </div>
@@ -50,31 +50,31 @@ export function ConfigurationTest() {
 
         {/* Brand Colors Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Papa Bolotas Brand Colors</h2>
+          <h2 className="text-2xl font-semibold mb-4">Cores da Marca Papa Bolotas</h2>
           <div className="grid grid-cols-1 tablet:grid-cols-3 desktop:grid-cols-5 gap-4">
             <div className="space-y-2">
               <div className="bg-brand-primary h-20 rounded-lg" />
-              <p className="text-sm font-medium">Primary</p>
+              <p className="text-sm font-medium">Primária</p>
               <p className="text-xs text-muted-foreground">#FF6B35</p>
             </div>
             <div className="space-y-2">
               <div className="bg-brand-secondary h-20 rounded-lg" />
-              <p className="text-sm font-medium">Secondary</p>
+              <p className="text-sm font-medium">Secundária</p>
               <p className="text-xs text-muted-foreground">#004E89</p>
             </div>
             <div className="space-y-2">
               <div className="bg-brand-accent h-20 rounded-lg" />
-              <p className="text-sm font-medium">Accent</p>
+              <p className="text-sm font-medium">Destaque</p>
               <p className="text-xs text-muted-foreground">#F7931E</p>
             </div>
             <div className="space-y-2">
               <div className="bg-brand-dark h-20 rounded-lg border" />
-              <p className="text-sm font-medium">Dark</p>
+              <p className="text-sm font-medium">Escura</p>
               <p className="text-xs text-muted-foreground">#1A1A1A</p>
             </div>
             <div className="space-y-2">
               <div className="bg-brand-light h-20 rounded-lg border" />
-              <p className="text-sm font-medium">Light</p>
+              <p className="text-sm font-medium">Clara</p>
               <p className="text-xs text-muted-foreground">#F5F5F5</p>
             </div>
           </div>
@@ -82,59 +82,59 @@ export function ConfigurationTest() {
 
         {/* shadcn/ui Theme Colors Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">shadcn/ui Theme Colors</h2>
+          <h2 className="text-2xl font-semibold mb-4">Cores do Tema shadcn/ui</h2>
           <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-4 gap-4">
             <div className="space-y-2">
               <div className="bg-primary h-16 rounded-lg" />
-              <p className="text-sm font-medium">Primary</p>
+              <p className="text-sm font-medium">Primária</p>
             </div>
             <div className="space-y-2">
               <div className="bg-secondary h-16 rounded-lg" />
-              <p className="text-sm font-medium">Secondary</p>
+              <p className="text-sm font-medium">Secundária</p>
             </div>
             <div className="space-y-2">
               <div className="bg-accent h-16 rounded-lg" />
-              <p className="text-sm font-medium">Accent</p>
+              <p className="text-sm font-medium">Destaque</p>
             </div>
             <div className="space-y-2">
               <div className="bg-destructive h-16 rounded-lg" />
-              <p className="text-sm font-medium">Destructive</p>
+              <p className="text-sm font-medium">Destrutiva</p>
             </div>
           </div>
         </Card>
 
         {/* Button Variants Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Button Components</h2>
+          <h2 className="text-2xl font-semibold mb-4">Componentes de Botão</h2>
           <div className="flex flex-wrap gap-4">
-            <Button variant="default">Default</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="destructive">Destructive</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="link">Link</Button>
+            <Button variant="default">Predefinido</Button>
+            <Button variant="secondary">Secundário</Button>
+            <Button variant="destructive">Destrutivo</Button>
+            <Button variant="outline">Contorno</Button>
+            <Button variant="ghost">Fantasma</Button>
+            <Button variant="link">Ligação</Button>
           </div>
           <div className="flex flex-wrap gap-4 mt-4">
-            <Button size="sm">Small</Button>
-            <Button size="default">Default</Button>
-            <Button size="lg">Large</Button>
+            <Button size="sm">Pequeno</Button>
+            <Button size="default">Predefinido</Button>
+            <Button size="lg">Grande</Button>
           </div>
         </Card>
 
         {/* Form Components Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Form Components</h2>
+          <h2 className="text-2xl font-semibold mb-4">Componentes de Formulário</h2>
           <div className="space-y-4 max-w-md">
             <div className="space-y-2">
-              <Label htmlFor="test-input">Text Input</Label>
-              <Input id="test-input" placeholder="Enter text..." />
+              <Label htmlFor="test-input">Campo de Texto</Label>
+              <Input id="test-input" placeholder="Introduza texto..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="test-select">Select Input</Label>
+              <Label htmlFor="test-select">Campo de Seleção</Label>
               <Select>
-                <option>Option 1</option>
-                <option>Option 2</option>
-                <option>Option 3</option>
+                <option>Opção 1</option>
+                <option>Opção 2</option>
+                <option>Opção 3</option>
               </Select>
             </div>
           </div>
@@ -142,15 +142,15 @@ export function ConfigurationTest() {
 
         {/* Alert Component Test */}
         <Alert>
-          <h4 className="font-semibold">Configuration Complete!</h4>
+          <h4 className="font-semibold">Configuração Concluída!</h4>
           <p className="text-sm">
-            Tailwind CSS and shadcn/ui are properly configured with Papa Bolotas branding.
+            Tailwind CSS e shadcn/ui estão corretamente configurados com a marca Papa Bolotas.
           </p>
         </Alert>
 
         {/* Touch Target Test (Mobile) */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Touch Targets (44x44px min)</h2>
+          <h2 className="text-2xl font-semibold mb-4">Áreas de Toque (mín. 44x44px)</h2>
           <div className="flex flex-wrap gap-4">
             <Button size="icon" className="min-h-[44px] min-w-[44px]">
               ✓
@@ -169,16 +169,16 @@ export function ConfigurationTest() {
 
         {/* Responsive Typography Test */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Responsive Typography</h2>
+          <h2 className="text-2xl font-semibold mb-4">Tipografia Responsiva</h2>
           <div className="space-y-2">
             <h1 className="text-4xl mobile:text-2xl tablet:text-3xl desktop:text-4xl font-bold">
-              Heading 1 (Responsive)
+              Título 1 (Responsivo)
             </h1>
             <h2 className="text-3xl mobile:text-xl tablet:text-2xl desktop:text-3xl font-semibold">
-              Heading 2 (Responsive)
+              Título 2 (Responsivo)
             </h2>
             <p className="text-base mobile:text-sm tablet:text-base">
-              Body text that scales appropriately across devices.
+              Texto de corpo que se ajusta adequadamente a todos os dispositivos.
             </p>
           </div>
         </Card>

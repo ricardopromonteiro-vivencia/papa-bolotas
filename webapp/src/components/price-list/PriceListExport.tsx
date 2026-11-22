@@ -56,7 +56,7 @@ export const PriceListExport: React.FC<PriceListExportProps> = ({
       const menuItems = await menuService.getMenuItems();
 
       if (menuItems.length === 0) {
-        alert('Não há itens no menu para exportar.');
+        alert('Não há artigos no menu para exportar.');
         return;
       }
 

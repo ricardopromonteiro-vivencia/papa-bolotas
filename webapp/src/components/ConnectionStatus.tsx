@@ -76,7 +76,7 @@ export function ConnectionStatus() {
           {fullyConnected 
             ? 'Online' 
             : showWarning
-            ? 'Online (DB Issue)'
+            ? 'Online (Problema na BD)'
             : 'Offline'
           }
         </span>

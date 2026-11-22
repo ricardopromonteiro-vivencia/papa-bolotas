@@ -61,7 +61,7 @@ export function CashRegisterClosure({
       const stats = await sessionService.getSessionStatistics(sessionId);
       setStatistics(stats);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load session statistics';
+      const errorMessage = err instanceof Error ? err.message : 'Falha ao carregar estatísticas da sessão';
       setError(errorMessage);
       if (onError) {
         onError(err instanceof Error ? err : new Error(errorMessage));
@@ -106,7 +106,7 @@ export function CashRegisterClosure({
 
       const actual = parseFloat(actualCash);
       if (!isValidActualCash()) {
-        throw new Error('Please enter a valid cash amount');
+        throw new Error('Por favor, introduza um valor em dinheiro válido');
       }
 
       // Call SessionService to end the session
@@ -121,7 +121,7 @@ export function CashRegisterClosure({
       setIsDialogOpen(false);
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to close cash register';
+      const errorMessage = err instanceof Error ? err.message : 'Falha ao fechar a caixa';
       setError(errorMessage);
       if (onError) {
         onError(err instanceof Error ? err : new Error(errorMessage));
@@ -137,14 +137,14 @@ export function CashRegisterClosure({
   if (isLoading && !statistics) {
     return (
       <Card className="p-6">
-        <div className="text-center text-gray-600">Loading session data...</div>
+        <div className="text-center text-gray-600">A carregar dados da sessão...</div>
       </Card>
     );
   }
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Cash Register Closure</h2>
+      <h2 className="text-2xl font-bold mb-6">Fecho de Caixa</h2>
 
       {error && (
         <Alert variant="destructive" className="mb-4">
@@ -156,22 +156,22 @@ export function CashRegisterClosure({
         <div className="space-y-6">
           {/* Session Summary */}
           <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold mb-3">Session Summary</h3>
+            <h3 className="text-lg font-semibold mb-3">Resumo da Sessão</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Completed Orders</p>
+                <p className="text-sm text-gray-600">Pedidos Concluídos</p>
                 <p className="text-xl font-bold">{statistics.completedOrders}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
+                <p className="text-sm text-gray-600">Receita Total</p>
                 <p className="text-xl font-bold">€{expectedCash.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Complimentary Orders</p>
+                <p className="text-sm text-gray-600">Pedidos de Oferta</p>
                 <p className="text-xl">{statistics.complimentaryOrders}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Cancelled Orders</p>
+                <p className="text-sm text-gray-600">Pedidos Cancelados</p>
                 <p className="text-xl">{statistics.cancelledOrders}</p>
               </div>
             </div>
@@ -179,20 +179,20 @@ export function CashRegisterClosure({
 
           {/* Cash Reconciliation */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Cash Reconciliation</h3>
+            <h3 className="text-lg font-semibold">Reconciliação de Caixa</h3>
 
             {/* Expected Cash */}
             <div className="bg-blue-50 p-4 rounded-lg">
-              <Label className="text-sm text-blue-900">Expected Cash</Label>
+              <Label className="text-sm text-blue-900">Dinheiro Esperado</Label>
               <p className="text-2xl font-bold text-blue-900">€{expectedCash.toFixed(2)}</p>
               <p className="text-xs text-blue-700 mt-1">
-                Based on {statistics.completedOrders} completed orders
+                Com base em {statistics.completedOrders} pedidos concluídos
               </p>
             </div>
 
             {/* Actual Cash Input */}
             <div>
-              <Label htmlFor="actualCash">Actual Cash Count</Label>
+              <Label htmlFor="actualCash">Dinheiro Contado</Label>
               <Input
                 id="actualCash"
                 type="number"
@@ -225,7 +225,7 @@ export function CashRegisterClosure({
                       : 'text-red-900'
                   }`}
                 >
-                  Discrepancy
+                  Diferença
                 </Label>
                 <p
                   className={`text-2xl font-bold ${
@@ -248,10 +248,10 @@ export function CashRegisterClosure({
                   }`}
                 >
                   {discrepancy === 0
-                    ? 'Perfect match! Cash register balanced.'
+                    ? 'Valor exato! Caixa equilibrada.'
                     : discrepancy > 0
-                    ? 'Cash surplus detected.'
-                    : 'Cash shortage detected.'}
+                    ? 'Excedente de dinheiro detetado.'
+                    : 'Falta de dinheiro detetada.'}
                 </p>
               </div>
             )}
@@ -265,38 +265,38 @@ export function CashRegisterClosure({
                 size="lg"
                 disabled={!isValidActualCash() || isLoading}
               >
-                {isLoading ? 'Closing...' : 'Close Cash Register'}
+                {isLoading ? 'A fechar...' : 'Fechar Caixa'}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Confirm Cash Register Closure</AlertDialogTitle>
+                <AlertDialogTitle>Confirmar Fecho de Caixa</AlertDialogTitle>
                 <AlertDialogDescription asChild>
                   <div className="space-y-2">
-                    <p>Are you sure you want to close the cash register?</p>
+                    <p>Tem a certeza de que pretende fechar a caixa?</p>
                     <div className="bg-gray-100 p-3 rounded mt-3 space-y-1">
-                      <p className="font-semibold">Summary:</p>
-                      <p>Expected Cash: €{expectedCash.toFixed(2)}</p>
-                      <p>Actual Cash: €{parseFloat(actualCash).toFixed(2)}</p>
+                      <p className="font-semibold">Resumo:</p>
+                      <p>Dinheiro Esperado: €{expectedCash.toFixed(2)}</p>
+                      <p>Dinheiro Contado: €{parseFloat(actualCash).toFixed(2)}</p>
                       {discrepancy !== null && (
                         <p className={discrepancy === 0 ? 'text-green-600' : discrepancy > 0 ? 'text-yellow-600' : 'text-red-600'}>
-                          Discrepancy: {discrepancy > 0 ? '+' : ''}€{discrepancy.toFixed(2)}
+                          Diferença: {discrepancy > 0 ? '+' : ''}€{discrepancy.toFixed(2)}
                         </p>
                       )}
                     </div>
                     <p className="mt-3 text-sm">
-                      This will finalize the current session and reset the order counter.
+                      Isto irá finalizar a sessão atual e repor o contador de pedidos.
                     </p>
                   </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleCloseCashRegister}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Closing...' : 'Confirm Closure'}
+                  {isLoading ? 'A fechar...' : 'Confirmar Fecho'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

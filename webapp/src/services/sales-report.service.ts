@@ -69,7 +69,7 @@ export class SalesReportService {
     try {
       if (!sessionId || sessionId.trim().length === 0) {
         throw new SalesReportError(
-          'Session ID is required',
+          'O ID da sessão é obrigatório',
           'INVALID_SESSION_ID',
           400
         );
@@ -88,14 +88,14 @@ export class SalesReportService {
       // Re-throw SessionService errors as SalesReportError
       if (error instanceof Error) {
         throw new SalesReportError(
-          `Failed to generate sales report: ${error.message}`,
+          `Falha ao gerar o relatório de vendas: ${error.message}`,
           'GENERATION_FAILED',
           500
         );
       }
 
       throw new SalesReportError(
-        'An unexpected error occurred while generating sales report',
+        'Ocorreu um erro inesperado ao gerar o relatório de vendas',
         'UNEXPECTED_ERROR',
         500
       );
@@ -154,7 +154,7 @@ export class SalesReportService {
       }
 
       throw new SalesReportError(
-        'Failed to generate formatted sales report',
+        'Falha ao gerar o relatório de vendas formatado',
         'FORMATTING_FAILED',
         500
       );

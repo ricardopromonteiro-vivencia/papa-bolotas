@@ -167,14 +167,14 @@ export class ReceiptService {
       // Validate input
       if (!receiptData) {
         throw new ReceiptServiceError(
-          'Receipt data is required',
+          'Os dados do recibo são obrigatórios',
           'INVALID_RECEIPT_DATA'
         );
       }
 
       if (!receiptData.items || receiptData.items.length === 0) {
         throw new ReceiptServiceError(
-          'Receipt must contain at least one item',
+          'O recibo deve conter pelo menos um artigo',
           'EMPTY_RECEIPT'
         );
       }
@@ -266,7 +266,7 @@ export class ReceiptService {
         throw error;
       }
       throw new ReceiptServiceError(
-        'Failed to generate receipt',
+        'Falha ao gerar o recibo',
         'RECEIPT_GENERATION_ERROR'
       );
     }
@@ -309,7 +309,7 @@ export class ReceiptService {
   generateCancellationReceipt(order: Order, cancellationReason?: string): string {
     if (!order.isCancelled) {
       throw new ReceiptServiceError(
-        'Order is not cancelled',
+        'O pedido não está cancelado',
         'ORDER_NOT_CANCELLED'
       );
     }

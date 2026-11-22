@@ -134,6 +134,8 @@ export class MenuService {
               price: parseFloat(item.price),
               stockLevel: item.stock_level,
               isActive: item.is_active,
+              trackStock: item.track_stock ?? true,
+              isAvailable: item.is_available ?? true,
               createdAt: new Date(item.created_at),
               updatedAt: new Date(item.updated_at),
               lastModifiedBy: item.last_modified_by,
@@ -155,7 +157,7 @@ export class MenuService {
     } catch (error) {
       console.error('Error getting menu items:', error);
       throw new MenuServiceError(
-        'Failed to retrieve menu items',
+        'Falha ao obter os artigos do menu',
         'GET_ITEMS_ERROR',
         500
       );
@@ -178,7 +180,7 @@ export class MenuService {
       // Validate category
       if (!Object.values(Category).includes(category)) {
         throw new MenuServiceError(
-          `Invalid category: ${category}`,
+          `Categoria inválida: ${category}`,
           'INVALID_CATEGORY',
           400
         );
@@ -216,6 +218,8 @@ export class MenuService {
               price: parseFloat(item.price),
               stockLevel: item.stock_level,
               isActive: item.is_active,
+              trackStock: item.track_stock ?? true,
+              isAvailable: item.is_available ?? true,
               createdAt: new Date(item.created_at),
               updatedAt: new Date(item.updated_at),
               lastModifiedBy: item.last_modified_by,
@@ -241,7 +245,7 @@ export class MenuService {
 
       console.error('Error getting items by category:', error);
       throw new MenuServiceError(
-        `Failed to retrieve items for category: ${category}`,
+        `Falha ao obter os artigos da categoria: ${category}`,
         'GET_CATEGORY_ERROR',
         500
       );
@@ -260,7 +264,7 @@ export class MenuService {
       // Validate ID
       if (!id || id.trim().length === 0) {
         throw new MenuServiceError(
-          'Menu item ID is required',
+          'O ID do artigo do menu é obrigatório',
           'INVALID_ID',
           400
         );
@@ -293,6 +297,8 @@ export class MenuService {
               price: parseFloat(data.price),
               stockLevel: data.stock_level,
               isActive: data.is_active,
+              trackStock: data.track_stock ?? true,
+              isAvailable: data.is_available ?? true,
               createdAt: new Date(data.created_at),
               updatedAt: new Date(data.updated_at),
               lastModifiedBy: data.last_modified_by,
@@ -318,7 +324,7 @@ export class MenuService {
 
       console.error('Error getting menu item:', error);
       throw new MenuServiceError(
-        'Failed to retrieve menu item',
+        'Falha ao obter o artigo do menu',
         'GET_ITEM_ERROR',
         500
       );
@@ -367,6 +373,8 @@ export class MenuService {
                 price: newItem.price,
                 stock_level: newItem.stockLevel,
                 is_active: newItem.isActive,
+                track_stock: newItem.trackStock !== false,
+                is_available: newItem.isAvailable !== false,
                 last_modified_by: newItem.lastModifiedBy,
                 version: newItem.version,
               });
@@ -403,7 +411,7 @@ export class MenuService {
 
       console.error('Error creating menu item:', error);
       throw new MenuServiceError(
-        'Failed to create menu item',
+        'Falha ao criar o artigo do menu',
         'CREATE_ITEM_ERROR',
         500
       );
@@ -426,7 +434,7 @@ export class MenuService {
       // Validate ID
       if (!id || id.trim().length === 0) {
         throw new MenuServiceError(
-          'Menu item ID is required',
+          'O ID do artigo do menu é obrigatório',
           'INVALID_ID',
           400
         );
@@ -436,7 +444,7 @@ export class MenuService {
       const existingItem = await db.menuItems.get(id);
       if (!existingItem) {
         throw new MenuServiceError(
-          `Menu item not found: ${id}`,
+          `Artigo do menu não encontrado: ${id}`,
           'ITEM_NOT_FOUND',
           404
         );
@@ -478,6 +486,8 @@ export class MenuService {
                 price: updatedItem.price,
                 stock_level: updatedItem.stockLevel,
                 is_active: updatedItem.isActive,
+                track_stock: updatedItem.trackStock !== false,
+                is_available: updatedItem.isAvailable !== false,
                 last_modified_by: updatedItem.lastModifiedBy,
                 version: updatedItem.version,
                 updated_at: updatedItem.updatedAt.toISOString(),
@@ -515,7 +525,7 @@ export class MenuService {
 
       console.error('Error updating menu item:', error);
       throw new MenuServiceError(
-        'Failed to update menu item',
+        'Falha ao atualizar o artigo do menu',
         'UPDATE_ITEM_ERROR',
         500
       );
@@ -534,7 +544,7 @@ export class MenuService {
       // Validate ID
       if (!id || id.trim().length === 0) {
         throw new MenuServiceError(
-          'Menu item ID is required',
+          'O ID do artigo do menu é obrigatório',
           'INVALID_ID',
           400
         );
@@ -544,7 +554,7 @@ export class MenuService {
       const existingItem = await db.menuItems.get(id);
       if (!existingItem) {
         throw new MenuServiceError(
-          `Menu item not found: ${id}`,
+          `Artigo do menu não encontrado: ${id}`,
           'ITEM_NOT_FOUND',
           404
         );
@@ -602,7 +612,7 @@ export class MenuService {
 
       console.error('Error deleting menu item:', error);
       throw new MenuServiceError(
-        'Failed to delete menu item',
+        'Falha ao eliminar o artigo do menu',
         'DELETE_ITEM_ERROR',
         500
       );
@@ -643,7 +653,7 @@ export class MenuService {
     } catch (error) {
       console.error('Error grouping items by category:', error);
       throw new MenuServiceError(
-        'Failed to group menu items by category',
+        'Falha ao agrupar os artigos do menu por categoria',
         'GROUP_BY_CATEGORY_ERROR',
         500
       );
@@ -664,7 +674,7 @@ export class MenuService {
     // Validate name
     if (!item.name || item.name.trim().length === 0) {
       throw new MenuServiceError(
-        'Menu item name is required',
+        'O nome do artigo do menu é obrigatório',
         'INVALID_NAME',
         400
       );
@@ -672,7 +682,7 @@ export class MenuService {
 
     if (item.name.length > 100) {
       throw new MenuServiceError(
-        'Menu item name must be 100 characters or less',
+        'O nome do artigo do menu deve ter no máximo 100 caracteres',
         'NAME_TOO_LONG',
         400
       );
@@ -696,7 +706,7 @@ export class MenuService {
   private validateCategory(category: Category): void {
     if (!Object.values(Category).includes(category)) {
       throw new MenuServiceError(
-        `Invalid category. Must be one of: ${Object.values(Category).join(', ')}`,
+        `Categoria inválida. Deve ser uma de: ${Object.values(Category).join(', ')}`,
         'INVALID_CATEGORY',
         400
       );
@@ -715,7 +725,7 @@ export class MenuService {
   private validatePrice(price: number): void {
     if (typeof price !== 'number' || isNaN(price)) {
       throw new MenuServiceError(
-        'Price must be a valid number',
+        'O preço deve ser um número válido',
         'INVALID_PRICE_TYPE',
         400
       );
@@ -723,7 +733,7 @@ export class MenuService {
 
     if (price < 0) {
       throw new MenuServiceError(
-        'Price must be greater than or equal to zero',
+        'O preço deve ser maior ou igual a zero',
         'NEGATIVE_PRICE',
         400
       );
@@ -733,7 +743,7 @@ export class MenuService {
     const decimalPlaces = (price.toString().split('.')[1] || '').length;
     if (decimalPlaces > 2) {
       throw new MenuServiceError(
-        'Price can have at most 2 decimal places',
+        'O preço pode ter no máximo 2 casas decimais',
         'INVALID_PRICE_PRECISION',
         400
       );
@@ -748,7 +758,7 @@ export class MenuService {
   private validateStockLevel(stockLevel: number): void {
     if (typeof stockLevel !== 'number' || isNaN(stockLevel)) {
       throw new MenuServiceError(
-        'Stock level must be a valid number',
+        'O nível de stock deve ser um número válido',
         'INVALID_STOCK_TYPE',
         400
       );
@@ -756,7 +766,7 @@ export class MenuService {
 
     if (stockLevel < 0) {
       throw new MenuServiceError(
-        'Stock level must be greater than or equal to zero',
+        'O nível de stock deve ser maior ou igual a zero',
         'NEGATIVE_STOCK',
         400
       );
@@ -764,7 +774,7 @@ export class MenuService {
 
     if (!Number.isInteger(stockLevel)) {
       throw new MenuServiceError(
-        'Stock level must be an integer',
+        'O nível de stock deve ser um número inteiro',
         'NON_INTEGER_STOCK',
         400
       );

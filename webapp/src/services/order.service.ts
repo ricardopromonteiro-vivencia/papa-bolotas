@@ -20,7 +20,9 @@ import {
   Order, 
   OrderItem, 
   Receipt,
-  AdjustmentType
+  AdjustmentType,
+  tracksStock,
+  isItemAvailable
 } from '@/types';
 
 /**
@@ -125,7 +127,7 @@ export class OrderService {
       return maxOrderNumber + 1;
     } catch (error) {
       throw new OrderServiceError(
-        'Failed to generate order number',
+        'Falha ao gerar o número do pedido',
         'ORDER_NUMBER_ERROR',
         500
       );
@@ -147,11 +149,14 @@ export class OrderService {
         
         if (!menuItem) {
           throw new OrderServiceError(
-            `Menu item not found: ${item.menuItemId}`,
+            `Artigo do menu não encontrado: ${item.menuItemId}`,
             'MENU_ITEM_NOT_FOUND',
             404
           );
         }
+
+        // Artigos sem controlo de stock não descontam nada
+        if (!tracksStock(menuItem)) continue;
 
         // Calculate new stock level
         const newStockLevel = menuItem.stockLevel - item.quantity;
@@ -175,7 +180,7 @@ export class OrderService {
           quantityChange: -item.quantity,
           previousLevel: menuItem.stockLevel,
           newLevel: newStockLevel,
-          reason: `Order item`,
+          reason: `Artigo do pedido`,
           createdAt: new Date(),
         });
 
@@ -204,7 +209,7 @@ export class OrderService {
                   quantity_change: -item.quantity,
                   previous_level: menuItem.stockLevel,
                   new_level: newStockLevel,
-                  reason: 'Order item',
+                  reason: 'Artigo do pedido',
                 });
 
               if (error) throw error;
@@ -244,7 +249,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to decrement stock levels',
+        'Falha ao diminuir os níveis de stock',
         'STOCK_DECREMENT_ERROR',
         500
       );
@@ -259,7 +264,7 @@ export class OrderService {
   private validateOrderItems(items: Omit<OrderItem, 'id' | 'orderId'>[]): void {
     if (!items || items.length === 0) {
       throw new OrderServiceError(
-        'Order must contain at least one item',
+        'O pedido deve conter pelo menos um artigo',
         'EMPTY_ORDER',
         400
       );
@@ -268,7 +273,7 @@ export class OrderService {
     for (const item of items) {
       if (!item.menuItemId || typeof item.menuItemId !== 'string') {
         throw new OrderServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -276,7 +281,7 @@ export class OrderService {
 
       if (!item.menuItemName || typeof item.menuItemName !== 'string') {
         throw new OrderServiceError(
-          'Invalid menu item name',
+          'Nome do artigo do menu inválido',
           'INVALID_MENU_ITEM_NAME',
           400
         );
@@ -284,7 +289,7 @@ export class OrderService {
 
       if (typeof item.quantity !== 'number' || item.quantity <= 0) {
         throw new OrderServiceError(
-          'Item quantity must be a positive number',
+          'A quantidade do artigo deve ser um número positivo',
           'INVALID_QUANTITY',
           400
         );
@@ -292,7 +297,7 @@ export class OrderService {
 
       if (typeof item.unitPrice !== 'number' || item.unitPrice < 0) {
         throw new OrderServiceError(
-          'Item unit price must be non-negative',
+          'O preço unitário do artigo não pode ser negativo',
           'INVALID_UNIT_PRICE',
           400
         );
@@ -300,7 +305,7 @@ export class OrderService {
 
       if (typeof item.subtotal !== 'number' || item.subtotal < 0) {
         throw new OrderServiceError(
-          'Item subtotal must be non-negative',
+          'O subtotal do artigo não pode ser negativo',
           'INVALID_SUBTOTAL',
           400
         );
@@ -310,7 +315,7 @@ export class OrderService {
       const expectedSubtotal = item.quantity * item.unitPrice;
       if (Math.abs(item.subtotal - expectedSubtotal) > 0.01) {
         throw new OrderServiceError(
-          'Item subtotal does not match quantity × unit price',
+          'O subtotal do artigo não corresponde à quantidade × preço unitário',
           'INVALID_SUBTOTAL_CALCULATION',
           400
         );
@@ -340,13 +345,42 @@ export class OrderService {
       // Validate inputs
       if (!sessionId || typeof sessionId !== 'string') {
         throw new OrderServiceError(
-          'Invalid session ID',
+          'ID da sessão inválido',
           'INVALID_SESSION_ID',
           400
         );
       }
 
       this.validateOrderItems(items);
+
+      // Não deixa registar artigos esgotados, mesmo que tenham esgotado depois de entrarem no pedido:
+      // - bloqueados à mão
+      // - com controlo de stock e sem unidades suficientes (a base de dados não aceita stock negativo)
+      const quantities = new Map<string, number>();
+      for (const item of items) {
+        quantities.set(item.menuItemId, (quantities.get(item.menuItemId) ?? 0) + item.quantity);
+      }
+      const problems: string[] = [];
+      for (const [menuItemId, quantity] of quantities) {
+        const menuItem = await db.menuItems.get(menuItemId);
+        if (!menuItem) continue;
+        if (!isItemAvailable(menuItem)) {
+          problems.push(`${menuItem.name} (bloqueado)`);
+        } else if (tracksStock(menuItem) && quantity > menuItem.stockLevel) {
+          problems.push(
+            menuItem.stockLevel <= 0
+              ? `${menuItem.name} (stock 0)`
+              : `${menuItem.name} (só há ${menuItem.stockLevel})`
+          );
+        }
+      }
+      if (problems.length > 0) {
+        throw new OrderServiceError(
+          `Artigo esgotado: ${problems.join(', ')}. Retire-o do pedido ou ajuste a quantidade.`,
+          'ITEM_UNAVAILABLE',
+          409
+        );
+      }
 
       // Calculate total
       const total = items.reduce((sum, item) => sum + item.subtotal, 0);
@@ -381,7 +415,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to create order',
+        'Falha ao criar o pedido',
         'ORDER_CREATION_ERROR',
         500
       );
@@ -406,7 +440,7 @@ export class OrderService {
       // Validate order
       if (!order || !order.sessionId) {
         throw new OrderServiceError(
-          'Invalid order',
+          'Pedido inválido',
           'INVALID_ORDER',
           400
         );
@@ -509,7 +543,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to register order',
+        'Falha ao registar o pedido',
         'ORDER_REGISTRATION_ERROR',
         500
       );
@@ -545,7 +579,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to register complimentary order',
+        'Falha ao registar o pedido de oferta',
         'COMPLIMENTARY_ORDER_ERROR',
         500
       );
@@ -576,7 +610,7 @@ export class OrderService {
       // Validate inputs
       if (!orderId || typeof orderId !== 'string') {
         throw new OrderServiceError(
-          'Invalid order ID',
+          'ID do pedido inválido',
           'INVALID_ORDER_ID',
           400
         );
@@ -585,7 +619,7 @@ export class OrderService {
       // Validate security code is provided and is a string
       if (!securityCode || typeof securityCode !== 'string') {
         throw new OrderServiceError(
-          'Security code required',
+          'Código de segurança obrigatório',
           'SECURITY_CODE_REQUIRED',
           400
         );
@@ -594,7 +628,7 @@ export class OrderService {
       // Validate security code format (4-6 digits)
       if (!/^\d{4,6}$/.test(securityCode)) {
         throw new OrderServiceError(
-          'Invalid security code format. Must be 4-6 digits.',
+          'Formato do código de segurança inválido. Deve ter 4-6 dígitos.',
           'INVALID_SECURITY_CODE_FORMAT',
           400
         );
@@ -603,7 +637,7 @@ export class OrderService {
       // Validate security code matches configured value
       if (securityCode !== env.security.securityCode) {
         throw new OrderServiceError(
-          'Incorrect security code',
+          'Código de segurança incorreto',
           'INCORRECT_SECURITY_CODE',
           403
         );
@@ -614,7 +648,7 @@ export class OrderService {
       
       if (!order) {
         throw new OrderServiceError(
-          'Order not found',
+          'Pedido não encontrado',
           'ORDER_NOT_FOUND',
           404
         );
@@ -622,7 +656,7 @@ export class OrderService {
 
       if (order.isCancelled) {
         throw new OrderServiceError(
-          'Order is already cancelled',
+          'O pedido já está cancelado',
           'ORDER_ALREADY_CANCELLED',
           400
         );
@@ -643,6 +677,9 @@ export class OrderService {
           continue;
         }
 
+        // Artigos sem controlo de stock não repõem nada
+        if (!tracksStock(menuItem)) continue;
+
         const newStockLevel = menuItem.stockLevel + item.quantity;
 
         // Update menu item stock in local DB
@@ -659,7 +696,7 @@ export class OrderService {
           quantityChange: item.quantity,
           previousLevel: menuItem.stockLevel,
           newLevel: newStockLevel,
-          reason: `Order #${order.orderNumber} cancelled`,
+          reason: `Pedido #${order.orderNumber} cancelado`,
           createdAt: new Date(),
         });
 
@@ -729,7 +766,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to cancel order',
+        'Falha ao cancelar o pedido',
         'ORDER_CANCELLATION_ERROR',
         500
       );
@@ -746,7 +783,7 @@ export class OrderService {
     try {
       if (!sessionId || typeof sessionId !== 'string') {
         throw new OrderServiceError(
-          'Invalid session ID',
+          'ID da sessão inválido',
           'INVALID_SESSION_ID',
           400
         );
@@ -780,7 +817,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to get session orders',
+        'Falha ao obter os pedidos da sessão',
         'GET_ORDERS_ERROR',
         500
       );
@@ -797,7 +834,7 @@ export class OrderService {
     try {
       if (!orderId || typeof orderId !== 'string') {
         throw new OrderServiceError(
-          'Invalid order ID',
+          'ID do pedido inválido',
           'INVALID_ORDER_ID',
           400
         );
@@ -824,7 +861,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to get order',
+        'Falha ao obter o pedido',
         'GET_ORDER_ERROR',
         500
       );
@@ -845,7 +882,7 @@ export class OrderService {
       
       if (!order) {
         throw new OrderServiceError(
-          'Order not found',
+          'Pedido não encontrado',
           'ORDER_NOT_FOUND',
           404
         );
@@ -867,7 +904,7 @@ export class OrderService {
         throw error;
       }
       throw new OrderServiceError(
-        'Failed to generate receipt',
+        'Falha ao gerar o recibo',
         'RECEIPT_GENERATION_ERROR',
         500
       );

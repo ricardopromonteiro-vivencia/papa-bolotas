@@ -19,7 +19,8 @@ import { db } from '@/lib/db';
 import { 
   StockLevel,
   StockAdjustment,
-  AdjustmentType
+  AdjustmentType,
+  tracksStock
 } from '@/types';
 
 /**
@@ -111,7 +112,7 @@ export class StockService {
   private validateStockLevel(stockLevel: number): void {
     if (typeof stockLevel !== 'number' || isNaN(stockLevel)) {
       throw new StockServiceError(
-        'Stock level must be a valid number',
+        'O nível de stock deve ser um número válido',
         'INVALID_STOCK_TYPE',
         400
       );
@@ -119,7 +120,7 @@ export class StockService {
 
     if (stockLevel < 0) {
       throw new StockServiceError(
-        'Stock level must be non-negative',
+        'O nível de stock não pode ser negativo',
         'NEGATIVE_STOCK',
         400
       );
@@ -127,7 +128,7 @@ export class StockService {
 
     if (!Number.isInteger(stockLevel)) {
       throw new StockServiceError(
-        'Stock level must be an integer',
+        'O nível de stock deve ser um número inteiro',
         'NON_INTEGER_STOCK',
         400
       );
@@ -295,9 +296,9 @@ export class StockService {
    */
   async getStockLevels(): Promise<StockLevel[]> {
     try {
-      // Get all active menu items from local database
+      // Artigos ativos e com controlo de stock (os "sem stock" não aparecem na página de Stock)
       const menuItems = await db.menuItems
-        .filter(item => item.isActive === true)
+        .filter(item => item.isActive === true && tracksStock(item))
         .toArray();
 
       // Map to StockLevel format
@@ -314,7 +315,7 @@ export class StockService {
           const { data, error } = await this.retryWithBackoff(async () => {
             return await supabase
               .from('menu_items')
-              .select('id, name, stock_level, updated_at')
+              .select('id, name, stock_level, updated_at, track_stock')
               .eq('is_active', true);
           });
 
@@ -324,8 +325,11 @@ export class StockService {
           }
 
           if (data) {
+            // Só os artigos com controlo de stock
+            const tracked = data.filter(item => item.track_stock !== false);
+
             // Update local database with remote data if newer
-            for (const remoteItem of data) {
+            for (const remoteItem of tracked) {
               const localItem = menuItems.find(item => item.id === remoteItem.id);
               const remoteUpdatedAt = new Date(remoteItem.updated_at);
               
@@ -338,7 +342,7 @@ export class StockService {
             }
 
             // Return fresh data from Supabase
-            return data.map(item => ({
+            return tracked.map(item => ({
               itemId: item.id,
               itemName: item.name,
               currentLevel: item.stock_level,
@@ -355,7 +359,7 @@ export class StockService {
     } catch (error) {
       console.error('Error getting stock levels:', error);
       throw new StockServiceError(
-        'Failed to retrieve stock levels',
+        'Falha ao obter os níveis de stock',
         'GET_STOCK_ERROR',
         500
       );
@@ -373,7 +377,7 @@ export class StockService {
     try {
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -399,7 +403,7 @@ export class StockService {
 
       console.error('Error getting stock level:', error);
       throw new StockServiceError(
-        'Failed to retrieve stock level',
+        'Falha ao obter o nível de stock',
         'GET_STOCK_LEVEL_ERROR',
         500
       );
@@ -428,7 +432,7 @@ export class StockService {
       // Validate inputs
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -441,7 +445,7 @@ export class StockService {
       
       if (!menuItem) {
         throw new StockServiceError(
-          `Menu item not found: ${menuItemId}`,
+          `Artigo do menu não encontrado: ${menuItemId}`,
           'MENU_ITEM_NOT_FOUND',
           404
         );
@@ -481,7 +485,7 @@ export class StockService {
 
       console.error('Error adjusting stock:', error);
       throw new StockServiceError(
-        'Failed to adjust stock level',
+        'Falha ao ajustar o nível de stock',
         'ADJUST_STOCK_ERROR',
         500
       );
@@ -509,7 +513,7 @@ export class StockService {
       // Validate inputs
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -517,7 +521,7 @@ export class StockService {
 
       if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
         throw new StockServiceError(
-          'Quantity must be a positive number',
+          'A quantidade deve ser um número positivo',
           'INVALID_QUANTITY',
           400
         );
@@ -525,7 +529,7 @@ export class StockService {
 
       if (!Number.isInteger(quantity)) {
         throw new StockServiceError(
-          'Quantity must be an integer',
+          'A quantidade deve ser um número inteiro',
           'NON_INTEGER_QUANTITY',
           400
         );
@@ -536,7 +540,7 @@ export class StockService {
       
       if (!menuItem) {
         throw new StockServiceError(
-          `Menu item not found: ${menuItemId}`,
+          `Artigo do menu não encontrado: ${menuItemId}`,
           'MENU_ITEM_NOT_FOUND',
           404
         );
@@ -580,7 +584,7 @@ export class StockService {
 
       console.error('Error decrementing stock:', error);
       throw new StockServiceError(
-        'Failed to decrement stock level',
+        'Falha ao diminuir o nível de stock',
         'DECREMENT_STOCK_ERROR',
         500
       );
@@ -608,7 +612,7 @@ export class StockService {
       // Validate inputs
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -616,7 +620,7 @@ export class StockService {
 
       if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
         throw new StockServiceError(
-          'Quantity must be a positive number',
+          'A quantidade deve ser um número positivo',
           'INVALID_QUANTITY',
           400
         );
@@ -624,7 +628,7 @@ export class StockService {
 
       if (!Number.isInteger(quantity)) {
         throw new StockServiceError(
-          'Quantity must be an integer',
+          'A quantidade deve ser um número inteiro',
           'NON_INTEGER_QUANTITY',
           400
         );
@@ -635,7 +639,7 @@ export class StockService {
       
       if (!menuItem) {
         throw new StockServiceError(
-          `Menu item not found: ${menuItemId}`,
+          `Artigo do menu não encontrado: ${menuItemId}`,
           'MENU_ITEM_NOT_FOUND',
           404
         );
@@ -677,7 +681,7 @@ export class StockService {
 
       console.error('Error incrementing stock:', error);
       throw new StockServiceError(
-        'Failed to increment stock level',
+        'Falha ao aumentar o nível de stock',
         'INCREMENT_STOCK_ERROR',
         500
       );
@@ -710,7 +714,7 @@ export class StockService {
       // Validate inputs
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -719,7 +723,7 @@ export class StockService {
       // Requirement 9.3: Validate positive integer
       if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
         throw new StockServiceError(
-          'Loss quantity must be a positive number',
+          'A quantidade perdida deve ser um número positivo',
           'INVALID_LOSS_QUANTITY',
           400
         );
@@ -727,7 +731,7 @@ export class StockService {
 
       if (!Number.isInteger(quantity)) {
         throw new StockServiceError(
-          'Loss quantity must be an integer',
+          'A quantidade perdida deve ser um número inteiro',
           'NON_INTEGER_QUANTITY',
           400
         );
@@ -735,7 +739,7 @@ export class StockService {
 
       if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
         throw new StockServiceError(
-          'Reason for loss is required',
+          'O motivo da perda é obrigatório',
           'MISSING_REASON',
           400
         );
@@ -746,7 +750,7 @@ export class StockService {
       
       if (!menuItem) {
         throw new StockServiceError(
-          `Menu item not found: ${menuItemId}`,
+          `Artigo do menu não encontrado: ${menuItemId}`,
           'MENU_ITEM_NOT_FOUND',
           404
         );
@@ -795,7 +799,7 @@ export class StockService {
 
       console.error('Error recording loss:', error);
       throw new StockServiceError(
-        'Failed to record product loss',
+        'Falha ao registar a perda do produto',
         'RECORD_LOSS_ERROR',
         500
       );
@@ -817,7 +821,7 @@ export class StockService {
     try {
       if (!menuItemId || typeof menuItemId !== 'string') {
         throw new StockServiceError(
-          'Invalid menu item ID',
+          'ID do artigo do menu inválido',
           'INVALID_MENU_ITEM_ID',
           400
         );
@@ -844,7 +848,7 @@ export class StockService {
 
       console.error('Error getting adjustment history:', error);
       throw new StockServiceError(
-        'Failed to retrieve adjustment history',
+        'Falha ao obter o histórico de ajustes',
         'GET_HISTORY_ERROR',
         500
       );
@@ -866,7 +870,7 @@ export class StockService {
     try {
       if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
         throw new StockServiceError(
-          'Invalid date range',
+          'Intervalo de datas inválido',
           'INVALID_DATE_RANGE',
           400
         );
@@ -874,7 +878,7 @@ export class StockService {
 
       if (startDate > endDate) {
         throw new StockServiceError(
-          'Start date must be before end date',
+          'A data de início deve ser anterior à data de fim',
           'INVALID_DATE_ORDER',
           400
         );
@@ -895,7 +899,7 @@ export class StockService {
 
       console.error('Error getting adjustments by date range:', error);
       throw new StockServiceError(
-        'Failed to retrieve adjustments by date range',
+        'Falha ao obter os ajustes por intervalo de datas',
         'GET_ADJUSTMENTS_BY_DATE_ERROR',
         500
       );

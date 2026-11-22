@@ -16,6 +16,7 @@ vi.mock('@/services/auth.service', () => ({
     login: vi.fn(),
     logout: vi.fn(),
     getCurrentUser: vi.fn(),
+    getCurrentSession: vi.fn(),
     validateSession: vi.fn(),
     refreshSession: vi.fn(),
     onAuthStateChange: vi.fn(),
@@ -44,6 +45,7 @@ describe('AuthContext', () => {
     // Default mock implementations
     vi.mocked(authService.validateSession).mockResolvedValue(false);
     vi.mocked(authService.getCurrentUser).mockReturnValue(null);
+    vi.mocked(authService.getCurrentSession).mockResolvedValue(null);
     vi.mocked(authService.onAuthStateChange).mockReturnValue(() => {});
   });
 
@@ -101,7 +103,7 @@ describe('AuthContext', () => {
 
     it('should restore user state if session is valid', async () => {
       vi.mocked(authService.validateSession).mockResolvedValue(true);
-      vi.mocked(authService.getCurrentUser).mockReturnValue(mockUser);
+      vi.mocked(authService.getCurrentSession).mockResolvedValue(mockSession);
 
       const { result } = renderHook(() => useAuthContext(), {
         wrapper: AuthProvider,

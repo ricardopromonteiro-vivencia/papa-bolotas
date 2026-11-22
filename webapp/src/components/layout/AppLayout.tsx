@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from './BrandLogo';
 
 const NAV_ITEMS = [
   { to: '/pos',      icon: ShoppingCart, label: 'Vendas'    },
@@ -45,14 +46,17 @@ export function AppLayout() {
         sidebarCollapsed ? "w-16" : "w-56"
       )}>
         {/* Logo */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          {!sidebarCollapsed && (
-            <>
-              <div>
-                <h1 className="text-xl font-bold text-orange-600">🍞 Papa Bolotas</h1>
-                <p className="text-xs text-gray-500 mt-0.5">{user?.username}</p>
-              </div>
-            </>
+        <div className={cn(
+          "border-b border-gray-100 flex items-center",
+          sidebarCollapsed ? "flex-col gap-2 p-2 py-3" : "justify-between gap-2 p-3"
+        )}>
+          {sidebarCollapsed ? (
+            <BrandLogo showName={false} size="sm" />
+          ) : (
+            <div className="min-w-0">
+              <h1><BrandLogo /></h1>
+              <p className="text-xs text-gray-500 mt-0.5 truncate">{user?.username}</p>
+            </div>
           )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -110,7 +114,7 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0">
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-          <h1 className="text-lg font-bold text-orange-600">🍞 Papa Bolotas</h1>
+          <h1><BrandLogo size="sm" /></h1>
           <button onClick={() => setSidebarOpen(true)} className="p-2">
             <Menu className="h-5 w-5" />
           </button>
@@ -125,7 +129,7 @@ export function AppLayout() {
             />
             <div className="relative z-50 w-64 bg-white flex flex-col h-full shadow-xl">
               <div className="flex items-center justify-between p-4 border-b">
-                <h1 className="font-bold text-orange-600">🍞 Papa Bolotas</h1>
+                <h1><BrandLogo size="sm" /></h1>
                 <button onClick={() => setSidebarOpen(false)}>
                   <X className="h-5 w-5" />
                 </button>

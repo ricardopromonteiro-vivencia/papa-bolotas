@@ -72,7 +72,7 @@ export class AuthService {
       // Validate inputs
       if (!username || username.trim().length === 0) {
         throw new AuthenticationError(
-          'Username is required',
+          'O nome de utilizador é obrigatório',
           'INVALID_USERNAME',
           400
         );
@@ -80,7 +80,7 @@ export class AuthService {
 
       if (!password || password.length < 8) {
         throw new AuthenticationError(
-          'Password must be at least 8 characters',
+          'A palavra-passe deve ter pelo menos 8 caracteres',
           'INVALID_PASSWORD',
           400
         );
@@ -100,7 +100,7 @@ export class AuthService {
       // Verify we received a session
       if (!data.session) {
         throw new AuthenticationError(
-          'Authentication failed - no session returned',
+          'Falha na autenticação - nenhuma sessão devolvida',
           'NO_SESSION',
           500
         );
@@ -129,7 +129,7 @@ export class AuthService {
       // Wrap unknown errors
       console.error('Unexpected error during login:', error);
       throw new AuthenticationError(
-        'An unexpected error occurred during login',
+        'Ocorreu um erro inesperado durante o início de sessão',
         'UNKNOWN_ERROR',
         500
       );
@@ -151,7 +151,7 @@ export class AuthService {
 
       if (error) {
         throw new AuthenticationError(
-          'Failed to logout',
+          'Falha ao terminar sessão',
           error.message,
           500
         );
@@ -169,7 +169,7 @@ export class AuthService {
 
       console.error('Unexpected error during logout:', error);
       throw new AuthenticationError(
-        'An unexpected error occurred during logout',
+        'Ocorreu um erro inesperado ao terminar a sessão',
         'LOGOUT_ERROR',
         500
       );
@@ -177,9 +177,10 @@ export class AuthService {
   }
 
   /**
-   * Get the currently authenticated user (synchronous - deprecated)
+   * Get the currently authenticated user (synchronous)
    * 
-   * @deprecated Use getCurrentUserAsync() instead as Supabase getSession() is now async
+   * Supabase's getSession() returns a Promise, so this method returns null in
+   * practice. Use getCurrentUserAsync() to read the current user.
    * 
    * Requirements:
    * - 1.6: Maintain authentication state
@@ -187,41 +188,64 @@ export class AuthService {
    * @returns Current user or null if not authenticated
    */
   getCurrentUser(): User | null {
-    console.warn('getCurrentUser() is deprecated. Use getCurrentUserAsync() instead.');
-    return null;
-  }
-
-  /**
-   * Get the currently authenticated user (asynchronous)
-   * 
-   * Requirements:
-   * - 1.6: Maintain authentication state
-   * 
-   * @returns Promise resolving to current user or null if not authenticated
-   */
-  async getCurrentUserAsync(): Promise<User | null> {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Get current session synchronously from local storage
+      const session = supabase.auth.getSession();
 
-      if (error) {
-        console.error('Error getting current user:', error);
+      // Note: getSession() returns a promise in newer versions
+      // We'll handle both sync and async cases
+      if (session instanceof Promise) {
+        // If it's async, we can't return synchronously
+        // The caller should use getCurrentUserAsync() or validateSession() instead
+        console.warn('getCurrentUser: session is async, returning null');
         return null;
       }
 
-      if (!session) {
+      // Session is available synchronously (older API or cached)
+      const supabaseSession = (session as any)?.data?.session;
+      
+      if (!supabaseSession) {
         return null;
       }
 
       return {
-        id: session.user.id,
-        username: session.user.email || session.user.user_metadata.username || 'unknown',
+        id: supabaseSession.user.id,
+        username: supabaseSession.user.email || supabaseSession.user.user_metadata.username || 'unknown',
         role: UserRole.ADMIN,
-        createdAt: new Date(session.user.created_at),
-        updatedAt: new Date(session.user.updated_at || session.user.created_at),
+        createdAt: new Date(supabaseSession.user.created_at),
+        updatedAt: new Date(supabaseSession.user.updated_at || supabaseSession.user.created_at),
       };
 
     } catch (error) {
       console.error('Error getting current user:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get the current authentication session (asynchronous)
+   * 
+   * Supabase's getSession() returns a Promise, so this is the method to use
+   * when restoring the session on page load.
+   * 
+   * Requirements:
+   * - 1.5: Maintain authentication state (restore from storage)
+   * 
+   * @returns Promise resolving to the current session or null if not authenticated
+   */
+  async getCurrentSession(): Promise<AuthSession | null> {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error('Error getting current session:', error);
+        return null;
+      }
+
+      return session ? mapSupabaseSession(session) : null;
+
+    } catch (error) {
+      console.error('Error getting current session:', error);
       return null;
     }
   }
@@ -297,7 +321,7 @@ export class AuthService {
 
       if (error) {
         throw new AuthenticationError(
-          'Failed to refresh session',
+          'Falha ao renovar a sessão',
           error.message,
           401
         );
@@ -305,7 +329,7 @@ export class AuthService {
 
       if (!data.session) {
         throw new AuthenticationError(
-          'Session refresh failed - no session returned',
+          'Falha ao renovar a sessão - nenhuma sessão devolvida',
           'NO_SESSION',
           401
         );
@@ -329,7 +353,7 @@ export class AuthService {
 
       console.error('Unexpected error refreshing session:', error);
       throw new AuthenticationError(
-        'An unexpected error occurred while refreshing session',
+        'Ocorreu um erro inesperado ao renovar a sessão',
         'REFRESH_ERROR',
         500
       );
@@ -373,23 +397,23 @@ export class AuthService {
     // Map common Supabase error codes to user-friendly messages
     const errorMap: Record<string, { message: string; statusCode: number }> = {
       'invalid_credentials': {
-        message: 'Invalid username or password',
+        message: 'Nome de utilizador ou palavra-passe inválidos',
         statusCode: 401,
       },
       'email_not_confirmed': {
-        message: 'Email not confirmed',
+        message: 'Email não confirmado',
         statusCode: 401,
       },
       'user_not_found': {
-        message: 'User not found',
+        message: 'Utilizador não encontrado',
         statusCode: 404,
       },
       'weak_password': {
-        message: 'Password is too weak',
+        message: 'A palavra-passe é demasiado fraca',
         statusCode: 400,
       },
       'over_email_send_rate_limit': {
-        message: 'Too many requests. Please try again later',
+        message: 'Demasiados pedidos. Por favor, tente novamente mais tarde',
         statusCode: 429,
       },
     };
@@ -406,7 +430,7 @@ export class AuthService {
 
     // Default error message
     return new AuthenticationError(
-      error.message || 'Authentication failed',
+      error.message || 'Falha na autenticação',
       error.name || 'AUTH_ERROR',
       error.status || 500
     );

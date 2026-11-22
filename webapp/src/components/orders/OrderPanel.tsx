@@ -20,11 +20,12 @@
  */
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { Order, OrderItem, MenuItem } from '@/types';
+import { Order, OrderItem, MenuItem, isItemAvailable, tracksStock } from '@/types';
 import { orderService } from '@/services';
+import { printOrderTickets } from '@/lib/print-receipt';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, X } from 'lucide-react';
+import { Gift, Printer, Trash2, X } from 'lucide-react';
 
 interface OrderPanelProps {
   /** Current session ID */
@@ -48,6 +49,8 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
   
   // UI state
   const [isRegistering, setIsRegistering] = useState(false);
+  // Botão que está a registar (para mostrar "A registar..." só nesse botão)
+  const [pendingAction, setPendingAction] = useState<'order' | 'print' | 'offer' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -64,6 +67,30 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
    * Requirement: 5.1 - Add items to order
    */
   const addItem = (menuItem: MenuItem, quantity: number = 1) => {
+    // Artigo bloqueado à mão: não entra no pedido
+    if (!isItemAvailable(menuItem)) {
+      setSuccess(null);
+      setError(`"${menuItem.name}" está esgotado. Pode desbloqueá-lo em Definições.`);
+      return;
+    }
+
+    // Artigo com controlo de stock: não deixa passar do stock que existe
+    if (tracksStock(menuItem)) {
+      const inOrder = currentItems
+        .filter(i => i.menuItemId === menuItem.id)
+        .reduce((sum, i) => sum + i.quantity, 0);
+      if (menuItem.stockLevel <= 0) {
+        setSuccess(null);
+        setError(`"${menuItem.name}" está esgotado (stock 0). Reponha o stock na página Stock.`);
+        return;
+      }
+      if (inOrder + quantity > menuItem.stockLevel) {
+        setSuccess(null);
+        setError(`Só há ${menuItem.stockLevel} de "${menuItem.name}" em stock.`);
+        return;
+      }
+    }
+
     const subtotal = menuItem.price * quantity;
     
     const newItem: Omit<OrderItem, 'id' | 'orderId'> = {
@@ -107,13 +134,14 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
    * - 5.8: Record timestamp
    * - 5.9: Decrement stock quantities
    */
-  const handleRegisterOrder = async () => {
+  const handleRegisterOrder = async (print = false) => {
     if (currentItems.length === 0) {
-      setError('Cannot register empty order');
+      setError('Não é possível registar um pedido vazio');
       return;
     }
 
     setIsRegistering(true);
+    setPendingAction(print ? 'print' : 'order');
     setError(null);
     setSuccess(null);
 
@@ -132,7 +160,24 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       clearOrder();
       
       // Show success message
-      setSuccess(`Order #${registeredOrder.orderNumber} registered successfully`);
+      setSuccess(`Pedido #${registeredOrder.orderNumber} registado com sucesso`);
+
+      // Imprimir depois de registar; uma falha na impressão não anula o pedido
+      if (print) {
+        try {
+          // Talão do cliente + talão da cozinha (uma ou duas impressoras)
+          const outcome = await printOrderTickets(registeredOrder);
+          if (outcome.note) {
+            setSuccess(`Pedido #${registeredOrder.orderNumber} registado. ${outcome.note}`);
+          }
+        } catch (printErr) {
+          console.error('Failed to print receipt:', printErr);
+          setError(
+            `O pedido #${registeredOrder.orderNumber} foi registado, mas a impressão falhou. ` +
+            'Pode imprimi-lo no Histórico.'
+          );
+        }
+      }
       
       // Notify parent component
       if (onOrderRegistered) {
@@ -142,10 +187,11 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to register order';
+      const message = err instanceof Error ? err.message : 'Falha ao registar o pedido';
       setError(message);
     } finally {
       setIsRegistering(false);
+      setPendingAction(null);
     }
   };
 
@@ -157,11 +203,12 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
    */
   const handleRegisterComplimentary = async () => {
     if (currentItems.length === 0) {
-      setError('Cannot register empty order');
+      setError('Não é possível registar um pedido vazio');
       return;
     }
 
     setIsRegistering(true);
+    setPendingAction('offer');
     setError(null);
     setSuccess(null);
 
@@ -180,7 +227,7 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       clearOrder();
       
       // Show success message
-      setSuccess(`Complimentary order #${registeredOrder.orderNumber} registered`);
+      setSuccess(`Pedido de oferta #${registeredOrder.orderNumber} registado`);
       
       // Notify parent component
       if (onOrderRegistered) {
@@ -190,10 +237,11 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to register complimentary order';
+      const message = err instanceof Error ? err.message : 'Falha ao registar o pedido de oferta';
       setError(message);
     } finally {
       setIsRegistering(false);
+      setPendingAction(null);
     }
   };
 
@@ -207,9 +255,9 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
   }));
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4">
+    <div className="@container bg-white rounded-lg shadow p-4 @md:p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Current Order</h2>
+        <h2 className="text-2xl font-bold">Pedido Atual</h2>
         {hasItems && (
           <Button
             variant="ghost"
@@ -218,7 +266,7 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
             disabled={isRegistering}
           >
             <X className="h-4 w-4 mr-1" />
-            Clear
+            Limpar
           </Button>
         )}
       </div>
@@ -227,7 +275,7 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       <div className="space-y-2 min-h-[200px]">
         {currentItems.length === 0 ? (
           <div className="flex items-center justify-center h-[200px] text-gray-400">
-            <p>No items in order</p>
+            <p>Sem artigos no pedido</p>
           </div>
         ) : (
           currentItems.map((item, index) => (
@@ -260,12 +308,12 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
       {/* Observations */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Observations (optional)
+          Observações (opcional)
         </label>
         <Textarea
           value={observations}
           onChange={(e) => setObservations(e.target.value)}
-          placeholder="Add any special instructions or notes..."
+          placeholder="Adicione instruções especiais ou notas..."
           disabled={isRegistering}
           rows={2}
         />
@@ -292,25 +340,38 @@ export const OrderPanel = forwardRef<OrderPanelRef, OrderPanelProps>(
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
+      {/* Botões: empilhados quando o painel é estreito, lado a lado quando há espaço
+          (container query: depende da largura do painel, não do ecrã) */}
+      <div className="grid grid-cols-1 @md:grid-cols-3 gap-2">
         <Button
-          onClick={handleRegisterOrder}
+          onClick={() => handleRegisterOrder(false)}
           disabled={!hasItems || isRegistering}
-          className="flex-1"
           size="lg"
+          className="w-full h-auto min-h-11 py-2 whitespace-normal leading-tight"
         >
-          {isRegistering ? 'Registering...' : 'Register Order'}
+          {pendingAction === 'order' ? 'A registar...' : 'Registar Pedido'}
         </Button>
-        
+
+        <Button
+          onClick={() => handleRegisterOrder(true)}
+          disabled={!hasItems || isRegistering}
+          variant="secondary"
+          size="lg"
+          className="w-full h-auto min-h-11 py-2 whitespace-normal leading-tight"
+        >
+          <Printer className="h-4 w-4 mr-2 shrink-0" />
+          {pendingAction === 'print' ? 'A registar...' : 'Registar e Imprimir'}
+        </Button>
+
         <Button
           onClick={handleRegisterComplimentary}
           disabled={!hasItems || isRegistering}
           variant="outline"
-          className="flex-1"
           size="lg"
+          className="w-full h-auto min-h-11 py-2 whitespace-normal leading-tight"
         >
-          {isRegistering ? 'Registering...' : 'Register Complimentary'}
+          <Gift className="h-4 w-4 mr-2 shrink-0" />
+          {pendingAction === 'offer' ? 'A registar...' : 'Registar Oferta'}
         </Button>
       </div>
     </div>

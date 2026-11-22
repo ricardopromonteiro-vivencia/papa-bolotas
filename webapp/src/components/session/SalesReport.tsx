@@ -82,7 +82,7 @@ export function SalesReport({
       } catch (err) {
         if (isMounted) {
           console.error('Failed to load sales report:', err);
-          setError(err instanceof Error ? err.message : 'Failed to load sales report');
+          setError(err instanceof Error ? err.message : 'Falha ao carregar o relatório de vendas');
           setLoading(false);
         }
       }
@@ -113,7 +113,7 @@ export function SalesReport({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Sales Report
+            Relatório de Vendas
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -133,12 +133,12 @@ export function SalesReport({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
             <AlertCircle className="w-5 h-5" />
-            Error Loading Report
+            Erro ao Carregar Relatório
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-red-600 text-sm">
-            {error || 'Unable to load sales report'}
+            {error || 'Não foi possível carregar o relatório de vendas'}
           </p>
         </CardContent>
       </Card>
@@ -153,11 +153,11 @@ export function SalesReport({
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
-              Sales Report
+              Relatório de Vendas
             </div>
             {lastUpdated && (
               <span className="text-xs font-normal text-gray-500">
-                Updated: {formatDateTime(lastUpdated)}
+                Atualizado: {formatDateTime(lastUpdated)}
               </span>
             )}
           </CardTitle>
@@ -171,7 +171,7 @@ export function SalesReport({
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Session Started
+                  Início da Sessão
                 </p>
                 <p className="text-sm font-medium text-gray-900 mt-0.5">
                   {formatDateTime(report.sessionStart)}
@@ -185,7 +185,7 @@ export function SalesReport({
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Duration
+                  Duração
                 </p>
                 <p className="text-sm font-medium text-gray-900 mt-0.5 font-mono">
                   {report.sessionDuration}
@@ -203,7 +203,7 @@ export function SalesReport({
                 <TrendingUp className="w-4 h-4 text-green-500" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">
-                Total Revenue
+                Receita Total
               </p>
               <p className="text-2xl font-bold text-gray-900">
                 {report.formattedRevenue}
@@ -216,7 +216,7 @@ export function SalesReport({
                 <ShoppingCart className="w-5 h-5 text-blue-600" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">
-                Completed Orders
+                Pedidos Concluídos
               </p>
               <p className="text-2xl font-bold text-gray-900">
                 {report.completedOrders}
@@ -229,7 +229,7 @@ export function SalesReport({
                 <Package className="w-5 h-5 text-amber-600" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">
-                Complimentary
+                Oferta
               </p>
               <p className="text-2xl font-bold text-gray-900">
                 {report.complimentaryOrders}
@@ -242,7 +242,7 @@ export function SalesReport({
                 <AlertCircle className="w-5 h-5 text-red-600" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">
-                Cancelled
+                Cancelado
               </p>
               <p className="text-2xl font-bold text-gray-900">
                 {report.cancelledOrders}
@@ -257,14 +257,14 @@ export function SalesReport({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="w-5 h-5" />
-            Item Sales Breakdown
+            Detalhe de Vendas por Artigo
           </CardTitle>
         </CardHeader>
         <CardContent>
           {report.topSellingItems.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No items sold yet</p>
+              <p className="text-sm">Ainda não foram vendidos artigos</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -272,10 +272,10 @@ export function SalesReport({
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                      Item Name
+                      Nome do Artigo
                     </th>
                     <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                      Quantity
+                      Quantidade
                     </th>
                     <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
                       Subtotal
@@ -325,7 +325,7 @@ export function SalesReport({
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left">
               <p className="text-sm text-gray-600 mb-1">
-                Total Orders Processed
+                Total de Pedidos Processados
               </p>
               <p className="text-3xl font-bold text-gray-900">
                 {report.totalOrders}
@@ -333,7 +333,7 @@ export function SalesReport({
             </div>
             <div className="text-center md:text-right">
               <p className="text-sm text-gray-600 mb-1">
-                Session Revenue
+                Receita da Sessão
               </p>
               <p className="text-3xl font-bold text-green-600">
                 {report.formattedRevenue}

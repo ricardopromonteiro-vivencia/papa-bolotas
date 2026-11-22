@@ -67,7 +67,7 @@ export function MenuGrid({
       setMenuItems(items);
     } catch (err) {
       console.error('Failed to load menu items:', err);
-      setError('Falha ao carregar itens do menu. Por favor, tente novamente.');
+      setError('Falha ao carregar artigos do menu. Por favor, tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -137,7 +137,7 @@ export function MenuGrid({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Nenhum item de menu disponível. Adicione itens para começar.
+            Nenhum artigo de menu disponível. Adicione artigos para começar.
           </AlertDescription>
         </Alert>
       </div>
@@ -157,7 +157,7 @@ export function MenuGrid({
 
       {/* Items Count */}
       <div className="text-sm text-muted-foreground">
-        {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'itens'}
+        {filteredItems.length} {filteredItems.length === 1 ? 'artigo' : 'artigos'}
         {selectedCategory && ` em ${selectedCategory}`}
       </div>
 
@@ -171,7 +171,7 @@ export function MenuGrid({
             lg:grid-cols-3
           `}
           role="list"
-          aria-label="Itens do menu"
+          aria-label="Artigos do menu"
         >
           {filteredItems.map((item) => (
             <div key={item.id} role="listitem">
@@ -183,7 +183,7 @@ export function MenuGrid({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Nenhum item encontrado nesta categoria.
+            Nenhum artigo encontrado nesta categoria.
           </AlertDescription>
         </Alert>
       )}

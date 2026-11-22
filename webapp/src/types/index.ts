@@ -140,11 +140,29 @@ export interface MenuItem {
   price: number;
   stockLevel: number;
   isActive: boolean;
+  /** false = artigo sem número de stock (não aparece no Stock, pedidos não descontam). Omisso = true */
+  trackStock?: boolean;
+  /** false = artigo bloqueado/esgotado: não pode ser adicionado a pedidos. Omisso = true */
+  isAvailable?: boolean;
   createdAt: Date;
   updatedAt: Date;
   lastModifiedBy?: string;
   version: number;
 }
+
+/** O artigo tem controlo de stock? (registos antigos sem o campo contam como sim) */
+export const tracksStock = (item: Pick<MenuItem, 'trackStock'>) => item.trackStock !== false;
+
+/** O artigo não foi bloqueado à mão? (registos antigos sem o campo contam como sim) */
+export const isItemAvailable = (item: Pick<MenuItem, 'isAvailable'>) => item.isAvailable !== false;
+
+/**
+ * O artigo pode ser vendido agora?
+ * Não, se foi bloqueado à mão ou se tem controlo de stock e o stock chegou a 0
+ * (volta a poder ser vendido sozinho quando o stock for reposto).
+ */
+export const isSellable = (item: Pick<MenuItem, 'isAvailable' | 'trackStock' | 'stockLevel'>) =>
+  isItemAvailable(item) && (!tracksStock(item) || item.stockLevel > 0);
 
 /**
  * Current stock level for a menu item

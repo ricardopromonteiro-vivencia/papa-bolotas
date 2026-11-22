@@ -12,7 +12,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
-import { Session, SalesReport } from '@/types';
+import { Session, SalesReport, Order } from '@/types';
 
 /**
  * Custom error class for session-related failures
@@ -50,7 +50,7 @@ export class SessionService {
       // Validate userId
       if (!userId || userId.trim().length === 0) {
         throw new SessionError(
-          'User ID is required to start a session',
+          'O ID do utilizador é obrigatório para iniciar uma sessão',
           'INVALID_USER_ID',
           400
         );
@@ -79,7 +79,7 @@ export class SessionService {
 
       if (error) {
         throw new SessionError(
-          `Failed to start session: ${error.message}`,
+          `Falha ao iniciar a sessão: ${error.message}`,
           'CREATE_FAILED',
           500
         );
@@ -87,7 +87,7 @@ export class SessionService {
 
       if (!data) {
         throw new SessionError(
-          'Failed to start session: No data returned',
+          'Falha ao iniciar a sessão: nenhum dado devolvido',
           'NO_DATA',
           500
         );
@@ -112,7 +112,7 @@ export class SessionService {
 
       console.error('Unexpected error starting session:', error);
       throw new SessionError(
-        'An unexpected error occurred while starting session',
+        'Ocorreu um erro inesperado ao iniciar a sessão',
         'START_ERROR',
         500
       );
@@ -136,7 +136,7 @@ export class SessionService {
       // Validate inputs
       if (!sessionId || sessionId.trim().length === 0) {
         throw new SessionError(
-          'Session ID is required',
+          'O ID da sessão é obrigatório',
           'INVALID_SESSION_ID',
           400
         );
@@ -144,7 +144,7 @@ export class SessionService {
 
       if (actualCash < 0) {
         throw new SessionError(
-          'Actual cash cannot be negative',
+          'O dinheiro contado não pode ser negativo',
           'INVALID_CASH',
           400
         );
@@ -154,7 +154,7 @@ export class SessionService {
       const session = await this.getSession(sessionId);
       if (!session.isActive) {
         throw new SessionError(
-          'Session is already closed',
+          'A sessão já está fechada',
           'SESSION_CLOSED',
           400
         );
@@ -182,7 +182,7 @@ export class SessionService {
 
       if (error) {
         throw new SessionError(
-          `Failed to end session: ${error.message}`,
+          `Falha ao terminar a sessão: ${error.message}`,
           'UPDATE_FAILED',
           500
         );
@@ -190,7 +190,7 @@ export class SessionService {
 
       if (!data) {
         throw new SessionError(
-          'Failed to end session: No data returned',
+          'Falha ao terminar a sessão: nenhum dado devolvido',
           'NO_DATA',
           500
         );
@@ -216,7 +216,7 @@ export class SessionService {
 
       console.error('Unexpected error ending session:', error);
       throw new SessionError(
-        'An unexpected error occurred while ending session',
+        'Ocorreu um erro inesperado ao terminar a sessão',
         'END_ERROR',
         500
       );
@@ -234,7 +234,7 @@ export class SessionService {
     try {
       if (!sessionId || sessionId.trim().length === 0) {
         throw new SessionError(
-          'Session ID is required',
+          'O ID da sessão é obrigatório',
           'INVALID_SESSION_ID',
           400
         );
@@ -249,13 +249,13 @@ export class SessionService {
       if (error) {
         if (error.code === 'PGRST116') {
           throw new SessionError(
-            'Session not found',
+            'Sessão não encontrada',
             'NOT_FOUND',
             404
           );
         }
         throw new SessionError(
-          `Failed to get session: ${error.message}`,
+          `Falha ao obter a sessão: ${error.message}`,
           'FETCH_FAILED',
           500
         );
@@ -263,7 +263,7 @@ export class SessionService {
 
       if (!data) {
         throw new SessionError(
-          'Session not found',
+          'Sessão não encontrada',
           'NOT_FOUND',
           404
         );
@@ -278,7 +278,7 @@ export class SessionService {
 
       console.error('Unexpected error getting session:', error);
       throw new SessionError(
-        'An unexpected error occurred while getting session',
+        'Ocorreu um erro inesperado ao obter a sessão',
         'GET_ERROR',
         500
       );
@@ -298,7 +298,7 @@ export class SessionService {
     try {
       if (!userId || userId.trim().length === 0) {
         throw new SessionError(
-          'User ID is required',
+          'O ID do utilizador é obrigatório',
           'INVALID_USER_ID',
           400
         );
@@ -315,7 +315,7 @@ export class SessionService {
 
       if (error) {
         throw new SessionError(
-          `Failed to get active session: ${error.message}`,
+          `Falha ao obter a sessão ativa: ${error.message}`,
           'FETCH_FAILED',
           500
         );
@@ -334,7 +334,7 @@ export class SessionService {
 
       console.error('Unexpected error getting active session:', error);
       throw new SessionError(
-        'An unexpected error occurred while getting active session',
+        'Ocorreu um erro inesperado ao obter a sessão ativa',
         'GET_ACTIVE_ERROR',
         500
       );
@@ -356,7 +356,7 @@ export class SessionService {
     try {
       if (!userId || userId.trim().length === 0) {
         throw new SessionError(
-          'User ID is required',
+          'O ID do utilizador é obrigatório',
           'INVALID_USER_ID',
           400
         );
@@ -371,7 +371,7 @@ export class SessionService {
 
       if (error) {
         throw new SessionError(
-          `Failed to get user sessions: ${error.message}`,
+          `Falha ao obter as sessões do utilizador: ${error.message}`,
           'FETCH_FAILED',
           500
         );
@@ -386,7 +386,7 @@ export class SessionService {
 
       console.error('Unexpected error getting user sessions:', error);
       throw new SessionError(
-        'An unexpected error occurred while getting user sessions',
+        'Ocorreu um erro inesperado ao obter as sessões do utilizador',
         'GET_SESSIONS_ERROR',
         500
       );
@@ -406,7 +406,7 @@ export class SessionService {
     try {
       if (!sessionId || sessionId.trim().length === 0) {
         throw new SessionError(
-          'Session ID is required',
+          'O ID da sessão é obrigatório',
           'INVALID_SESSION_ID',
           400
         );
@@ -434,7 +434,7 @@ export class SessionService {
 
       if (ordersError) {
         throw new SessionError(
-          `Failed to get session orders: ${ordersError.message}`,
+          `Falha ao obter os pedidos da sessão: ${ordersError.message}`,
           'FETCH_ORDERS_FAILED',
           500
         );
@@ -496,11 +496,67 @@ export class SessionService {
 
       console.error('Unexpected error getting session statistics:', error);
       throw new SessionError(
-        'An unexpected error occurred while getting session statistics',
+        'Ocorreu um erro inesperado ao obter as estatísticas da sessão',
         'STATS_ERROR',
         500
       );
     }
+  }
+
+  /**
+   * Get every order of a session, with its items, straight from Supabase.
+   * Used by the closure history, so it works for past sessions and other devices
+   * (the local IndexedDB copy may have been cleared).
+   *
+   * @param sessionId - ID of the session
+   * @returns Promise resolving to the orders sorted by order number
+   */
+  async getSessionOrderDetails(sessionId: string): Promise<Order[]> {
+    if (!sessionId || sessionId.trim().length === 0) {
+      throw new SessionError('O ID da sessão é obrigatório', 'INVALID_SESSION_ID', 400);
+    }
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        id, order_number, session_id, total, is_complimentary, is_cancelled,
+        observations, created_by, created_at, cancelled_at, cancelled_by, version,
+        order_items ( id, order_id, menu_item_id, menu_item_name, quantity, unit_price, subtotal )
+      `)
+      .eq('session_id', sessionId)
+      .order('order_number', { ascending: true });
+
+    if (error) {
+      throw new SessionError(
+        `Falha ao obter os pedidos da sessão: ${error.message}`,
+        'FETCH_ORDERS_FAILED',
+        500
+      );
+    }
+
+    return (data || []).map((o: any): Order => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      sessionId: o.session_id,
+      total: Number(o.total),
+      isComplimentary: o.is_complimentary,
+      isCancelled: o.is_cancelled,
+      observations: o.observations ?? undefined,
+      createdBy: o.created_by ?? undefined,
+      createdAt: new Date(o.created_at),
+      cancelledAt: o.cancelled_at ? new Date(o.cancelled_at) : undefined,
+      cancelledBy: o.cancelled_by ?? undefined,
+      version: o.version,
+      items: (o.order_items || []).map((i: any) => ({
+        id: i.id,
+        orderId: i.order_id,
+        menuItemId: i.menu_item_id,
+        menuItemName: i.menu_item_name,
+        quantity: i.quantity,
+        unitPrice: Number(i.unit_price),
+        subtotal: Number(i.subtotal),
+      })),
+    }));
   }
 
   /**
@@ -520,7 +576,7 @@ export class SessionService {
 
     if (error) {
       throw new SessionError(
-        `Failed to calculate expected cash: ${error.message}`,
+        `Falha ao calcular o dinheiro esperado: ${error.message}`,
         'CALC_FAILED',
         500
       );

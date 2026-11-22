@@ -66,11 +66,11 @@ export function ProtectedRoute({
       <div 
         className="min-h-screen flex items-center justify-center bg-gray-50"
         role="status"
-        aria-label="Loading authentication status"
+        aria-label="A verificar estado da autenticação"
       >
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">A verificar autenticação...</p>
         </div>
       </div>
     );

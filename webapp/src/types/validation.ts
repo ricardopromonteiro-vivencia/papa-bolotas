@@ -244,6 +244,8 @@ export const menuItemSchema = z.object({
   price: positiveDecimal.max(9999.99, 'Price too high'),
   stockLevel: nonNegativeInteger,
   isActive: z.boolean(),
+  trackStock: z.boolean().optional(),
+  isAvailable: z.boolean().optional(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
   lastModifiedBy: uuid.optional(),
@@ -260,6 +262,8 @@ export const createMenuItemSchema = z.object({
   price: positiveDecimal.max(9999.99, 'Price too high'),
   stockLevel: nonNegativeInteger.default(0),
   isActive: z.boolean().default(true),
+  trackStock: z.boolean().default(true),
+  isAvailable: z.boolean().default(true),
   lastModifiedBy: uuid.optional()
 });
 
@@ -272,6 +276,8 @@ export const updateMenuItemSchema = z.object({
   price: positiveDecimal.max(9999.99, 'Price too high').optional(),
   stockLevel: nonNegativeInteger.optional(),
   isActive: z.boolean().optional(),
+  trackStock: z.boolean().optional(),
+  isAvailable: z.boolean().optional(),
   lastModifiedBy: uuid.optional(),
   updatedAt: dateSchema.optional()
 });

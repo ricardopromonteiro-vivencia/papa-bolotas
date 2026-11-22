@@ -43,7 +43,7 @@ export default defineConfig(({ command, mode }) => {
       manifest: {
         name: 'Papa Bolotas POS',
         short_name: 'Papa Bolotas',
-        description: 'Papa Bolotas Point of Sale System - Offline-first restaurant management application',
+        description: 'Papa Bolotas - Sistema de gestão de vendas para restauração, com funcionamento offline',
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',

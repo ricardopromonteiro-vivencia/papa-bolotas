@@ -113,14 +113,14 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
 
       // Validate security code is entered
       if (!securityCode) {
-        setError('Please enter the security code');
+        setError('Por favor, introduza o código de segurança');
         setIsProcessing(false);
         return;
       }
 
       // Validate format (4-6 digits)
       if (securityCode.length < 4) {
-        setError('Security code must be at least 4 digits');
+        setError('O código de segurança deve ter pelo menos 4 dígitos');
         setIsProcessing(false);
         return;
       }
@@ -137,7 +137,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
       const updatedOrder = await orderService.getOrder(order.id);
       
       if (!updatedOrder) {
-        throw new Error('Failed to retrieve cancelled order');
+        throw new Error('Falha ao obter o pedido cancelado');
       }
 
       // Notify parent component of success
@@ -148,7 +148,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
       onClose();
 
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to cancel order';
+      const message = err instanceof Error ? err.message : 'Falha ao cancelar o pedido';
       setError(message);
       setIsProcessing(false);
     }
@@ -171,10 +171,10 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <XCircle className="h-5 w-5 text-red-600" />
-            Cancel Order #{order.orderNumber}
+            Cancelar Pedido #{order.orderNumber}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This action will cancel the order and restore stock levels.
+            Esta ação irá cancelar o pedido e repor os níveis de stock.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -182,7 +182,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
           {/* Order Summary */}
           <div className="bg-gray-50 rounded-lg p-3 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Order Number:</span>
+              <span className="text-gray-600">Nº do Pedido:</span>
               <span className="font-semibold">#{order.orderNumber}</span>
             </div>
             <div className="flex justify-between text-sm">
@@ -190,13 +190,13 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
               <span className="font-semibold">€{order.total.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Items:</span>
+              <span className="text-gray-600">Artigos:</span>
               <span className="font-semibold">
                 {order.items.reduce((sum, item) => sum + item.quantity, 0)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Created:</span>
+              <span className="text-gray-600">Criado:</span>
               <span className="font-semibold">
                 {order.createdAt.toLocaleTimeString()}
               </span>
@@ -206,8 +206,8 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
           {/* Stock Restoration Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-800">
-              <strong>Stock will be restored:</strong> All items from this order will be 
-              returned to inventory.
+              <strong>O stock será reposto:</strong> Todos os artigos deste pedido serão 
+              devolvidos ao inventário.
             </p>
           </div>
 
@@ -215,13 +215,13 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
           <div className="space-y-2">
             <Label htmlFor="security-code" className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
-              Security Code
+              Código de segurança
             </Label>
             <Input
               id="security-code"
               type="password"
               inputMode="numeric"
-              placeholder="Enter 4-6 digit code"
+              placeholder="Introduza o código de 4-6 dígitos"
               value={securityCode}
               onChange={(e) => handleSecurityCodeChange(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -231,7 +231,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
               autoFocus
             />
             <p className="text-xs text-gray-500">
-              Enter the security code to authorize this cancellation
+              Introduza o código de segurança para autorizar este cancelamento
             </p>
           </div>
 
@@ -249,14 +249,14 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
             onClick={handleClose}
             disabled={isProcessing}
           >
-            Cancel
+            Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleCancelOrder}
             disabled={isProcessing || securityCode.length < 4}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
-            {isProcessing ? 'Cancelling...' : 'Cancel Order'}
+            {isProcessing ? 'A cancelar...' : 'Cancelar Pedido'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

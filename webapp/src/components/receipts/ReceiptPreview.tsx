@@ -34,7 +34,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ order }) => {
       setReceiptText(text);
     } catch (error) {
       console.error('Failed to generate receipt:', error);
-      setReceiptText('Error generating receipt');
+      setReceiptText('Erro ao gerar o recibo');
     }
   }, [order]);
 
@@ -59,7 +59,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ order }) => {
           className="w-full"
         >
           <Printer className="h-4 w-4 mr-2" />
-          Imprimir Talão
+          Imprimir Recibo
         </Button>
       </div>
 

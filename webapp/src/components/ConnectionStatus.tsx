@@ -47,8 +47,8 @@ export function ConnectionStatus() {
   return (
     <div
       className={`
-        fixed top-4 right-4 z-50 
-        px-4 py-2 rounded-lg shadow-lg
+        fixed bottom-16 right-2 md:bottom-auto md:top-4 md:right-4 z-50 text-xs md:text-base opacity-90 pointer-events-none 
+        px-2 py-1 md:px-4 md:py-2 rounded-lg shadow-lg
         flex items-center gap-2
         transition-all duration-300
         ${fullyConnected 

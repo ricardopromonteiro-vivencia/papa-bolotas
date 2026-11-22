@@ -71,7 +71,7 @@ export default function POSPage() {
   return (
     <div className="md:h-full flex flex-col">
       {/* ── Top bar ── */}
-      <div className="flex flex-wrap items-center gap-3 px-4 py-2 bg-white border-b border-gray-200 shrink-0">
+      <div className="flex flex-wrap items-center gap-3 px-4 md:pr-40 py-2 bg-white border-b border-gray-200 shrink-0">
         <SessionStatusDisplay sessionId={session.id} />
         <PrinterStatusCard className="w-full sm:w-auto sm:max-w-xs" />
         <Button
